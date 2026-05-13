@@ -16,7 +16,53 @@
           </div>
         </div>
 
-        <form method="POST" action="" class="p-8 md:p-10 space-y-8">
+        @if (session('successMsg'))
+        <div class="m-8 mb-0 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 flex items-start gap-3">
+          <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <p class="font-medium whitespace-pre-line">{{ session('successMsg') }}</p>
+        </div>
+        @endif
+
+        @if (session('errorMsg'))
+        <div class="m-8 mb-0 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex items-start gap-3">
+          <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <p class="font-medium">{{ session('errorMsg') }}</p>
+        </div>
+        @endif
+
+        @if ($errors->any())
+        <div class="m-8 mb-0 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex flex-col gap-2">
+          @foreach ($errors->all() as $err)
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="font-medium">{{ $err }}</p>
+          </div>
+          @endforeach
+        </div>
+        @endif
+
+        @if ($cekPengajuan && $cekPengajuan->status == 'DITOLAK' && !session('successMsg'))
+        <div class="m-8 mb-0 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex items-start gap-3">
+          <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <p class="font-bold">Pengajuan Sebelumnya Ditolak</p>
+            <p class="text-sm mt-1">Alasan: {{ $cekPengajuan->catatan_admin ?: 'Tidak ada alasan spesifik.' }}</p>
+            <p class="text-sm mt-2">Anda dapat memperbaiki data dan mengajukan ulang formulir di bawah ini.</p>
+          </div>
+        </div>
+        @endif
+
+        @if ($cekPengajuan && $cekPengajuan->status == 'MENUNGGU' && !session('successMsg'))
+        <div class="p-10 text-center">
+            <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-dark mb-2">Pengajuan Sedang Diproses</h2>
+            <p class="text-gray-500 mb-6">Anda sudah memiliki pengajuan yang sedang diproses. Harap tunggu konfirmasi admin.</p>
+            <a href="{{ route('home') }}" class="inline-block bg-gray-100 hover:bg-gray-200 text-dark font-bold py-3 px-6 rounded-xl transition-colors">Kembali ke Beranda</a>
+        </div>
+        @else
+        <form method="POST" action="{{ route('freelancer.daftar') }}" class="p-8 md:p-10 space-y-8">
           @csrf
           <!-- Section 1: Identitas Diri -->
           <div>
@@ -28,29 +74,51 @@
             <div class="grid md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-bold text-dark mb-2">Nama Lengkap</label>
-                <input type="text" value="Budi Santoso" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-100 focus:outline-none text-sm font-medium text-gray-500 cursor-not-allowed" readonly>
+                <input type="text" value="{{ $user->nama_pengguna }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-100 focus:outline-none text-sm font-medium text-gray-500 cursor-not-allowed" readonly>
               </div>
               <div>
                 <label class="block text-sm font-bold text-dark mb-2">Email</label>
-                <input type="email" value="budi@example.com" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-100 focus:outline-none text-sm font-medium text-gray-500 cursor-not-allowed" readonly>
+                <input type="email" value="{{ $user->email }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-100 focus:outline-none text-sm font-medium text-gray-500 cursor-not-allowed" readonly>
               </div>
               <div>
                 <label class="block text-sm font-bold text-dark mb-2">Provinsi <span class="text-red-500">*</span></label>
-                <select name="id_provinsi" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark cursor-pointer">
+                <select name="id_provinsi" id="selProvinsi" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark cursor-pointer">
                   <option value="">-- Pilih --</option>
-                  <option value="1">Jawa Barat</option>
+                  @foreach ($provinsiList as $p)
+                  <option value="{{ $p->id_provinsi }}" {{ $user->id_provinsi == $p->id_provinsi ? 'selected' : '' }}>{{ $p->nama_provinsi }}</option>
+                  @endforeach
                 </select>
               </div>
               <div>
                 <label class="block text-sm font-bold text-dark mb-2">Kabupaten/Kota <span class="text-red-500">*</span></label>
-                <select name="id_kabupaten" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark cursor-pointer">
+                <select name="id_kabupaten" id="selKabupaten" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark cursor-pointer">
                   <option value="">-- Pilih --</option>
-                  <option value="1">Bandung</option>
+                  @foreach ($kabupatenList as $k)
+                  <option value="{{ $k->id_kabupaten }}" data-prov="{{ $k->id_provinsi }}" {{ $user->id_kabupaten == $k->id_kabupaten ? 'selected' : '' }}>{{ $k->nama_kabupaten }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-dark mb-2">Kecamatan <span class="text-red-500">*</span></label>
+                <select name="id_kecamatan" id="selKecamatan" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark cursor-pointer">
+                  <option value="">-- Pilih --</option>
+                  @foreach ($kecamatanList as $kc)
+                  <option value="{{ $kc->id_kecamatan }}" data-kab="{{ $kc->id_kabupaten }}" {{ $user->id_kecamatan == $kc->id_kecamatan ? 'selected' : '' }}>{{ $kc->nama_kecamatan }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-dark mb-2">Desa/Kelurahan <span class="text-red-500">*</span></label>
+                <select name="id_desa" id="selDesa" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark cursor-pointer">
+                  <option value="">-- Pilih --</option>
+                  @foreach ($desaList as $d)
+                  <option value="{{ $d->id_desa }}" data-kec="{{ $d->id_kecamatan }}" {{ $user->id_desa == $d->id_desa ? 'selected' : '' }}>{{ $d->nama_desa }}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-bold text-dark mb-2">Alamat Lengkap <span class="text-red-500">*</span></label>
-                <textarea name="alamat_lengkap" rows="2" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none cursor-text">Jl. Contoh No. 123</textarea>
+                <textarea name="alamat_lengkap" rows="2" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none cursor-text">{{ old('alamat_lengkap', $user->alamat_lengkap) }}</textarea>
               </div>
             </div>
           </div>
@@ -94,8 +162,48 @@
             </button>
           </div>
         </form>
+        @endif
       </div>
 
     </div>
   </main>
+
+  <script>
+    // JS Filtering Cascade
+    function cascadeFilter(parentSel, childSel, dataAttr) {
+      const parentEl = document.getElementById(parentSel);
+      if (!parentEl) return;
+      parentEl.addEventListener('change', function() {
+        const val = this.value;
+        const child = document.getElementById(childSel);
+        if (!child) return;
+        child.value = '';
+        child.querySelectorAll('option[' + dataAttr + ']').forEach(opt => {
+          opt.style.display = (!val || opt.getAttribute(dataAttr) === val) ? '' : 'none';
+        });
+        child.dispatchEvent(new Event('change'));
+      });
+    }
+
+    // Initialize display states correctly without overwriting values
+    function initCascadeFilters() {
+      const sels = [
+        { c: 'selKabupaten', pId: document.getElementById('selProvinsi')?.value, attr: 'data-prov' },
+        { c: 'selKecamatan', pId: document.getElementById('selKabupaten')?.value, attr: 'data-kab' },
+        { c: 'selDesa', pId: document.getElementById('selKecamatan')?.value, attr: 'data-kec' }
+      ];
+      sels.forEach(combo => {
+        const child = document.getElementById(combo.c);
+        if(!child) return;
+        child.querySelectorAll('option[' + combo.attr + ']').forEach(opt => {
+           opt.style.display = (!combo.pId || opt.getAttribute(combo.attr) === combo.pId) ? '' : 'none';
+        });
+      });
+    }
+
+    cascadeFilter('selProvinsi', 'selKabupaten', 'data-prov');
+    cascadeFilter('selKabupaten', 'selKecamatan', 'data-kab');
+    cascadeFilter('selKecamatan', 'selDesa', 'data-kec');
+    initCascadeFilters();
+  </script>
 @endsection

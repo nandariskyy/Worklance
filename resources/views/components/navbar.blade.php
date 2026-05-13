@@ -1,8 +1,8 @@
 @php
-$loggedIn = $loggedIn ?? false;
-$userName = $userName ?? 'Guest';
-$userRole = $userRole ?? null;
-$isFreelancer = $isFreelancer ?? false;
+$loggedIn = auth()->check();
+$userName = $loggedIn ? auth()->user()->nama_pengguna : 'Guest';
+$userRole = $loggedIn ? auth()->user()->id_role : null;
+$isFreelancer = $loggedIn && $userRole == 3;
 $currentPage = $currentPage ?? 'index';
 $basePath = url('/');
 @endphp
@@ -37,6 +37,11 @@ $basePath = url('/');
               Daftar Menjadi Freelancer
             </a>
           @endif
+          
+          <!-- Riwayat Pesanan Icon -->
+          <a href="{{ route('booking.riwayat') }}" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-primary/10 text-gray-500 hover:text-primary transition-all relative group" title="Riwayat Pesanan">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </a>
 
           <!-- User Dropdown Wrap -->
           <div class="relative ml-2" id="userMenuWrap">
@@ -51,15 +56,18 @@ $basePath = url('/');
               <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 group-focus:-rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
             <div id="userDropdown" class="hidden absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-              <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium">
+              <a href="{{ route('pengaturan.informasi') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm {{ str_starts_with(request()->route()->getName() ?? '', 'pengaturan') ? 'text-accent bg-orange-50' : 'text-gray-700 hover:bg-gray-50' }} font-medium">
                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 Pengaturan Akun
               </a>
               <div class="border-t border-gray-100 my-1"></div>
-              <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Logout
-              </a>
+              <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium text-left">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                  Logout
+                </button>
+              </form>
             </div>
           </div>
           
@@ -100,8 +108,13 @@ $basePath = url('/');
           <a href="{{ route('freelancer.mulai') }}" class="block text-base font-bold text-accent">Daftar Menjadi Freelancer</a>
         @endif
         
-        <a href="#" class="block text-base font-bold text-gray-700">Pengaturan Akun</a>
-        <a href="#" class="block text-base font-bold text-red-500 pt-4 border-t border-gray-100">Logout</a>
+        <a href="{{ route('booking.riwayat') }}" class="block text-base font-bold {{ $currentPage === 'riwayat-pesanan' ? 'text-accent' : 'text-gray-700' }}">Riwayat Pesanan</a>
+        
+        <a href="{{ route('pengaturan.informasi') }}" class="block text-base font-bold {{ str_starts_with(request()->route()->getName() ?? '', 'pengaturan') ? 'text-accent' : 'text-gray-700' }}">Pengaturan Akun</a>
+        <form method="POST" action="{{ route('logout') }}" class="w-full">
+          @csrf
+          <button type="submit" class="w-full text-left block text-base font-bold text-red-500 pt-4 border-t border-gray-100">Logout</button>
+        </form>
       @else
         <a href="{{ route('login') }}" class="block text-base font-bold text-gray-700">Masuk</a>
         <a href="{{ route('register') }}" class="block text-base font-bold text-primary">Daftar</a>

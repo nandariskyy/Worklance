@@ -24,7 +24,7 @@
         <h4 class="font-bold text-dark text-lg mb-6">Kategori Populer</h4>
         <ul class="space-y-4">
           @if (isset($kategoriList))
-            @foreach (array_slice($kategoriList, 0, 4) as $kat)
+            @foreach (is_array($kategoriList) ? array_slice($kategoriList, 0, 4) : $kategoriList->take(4) as $kat)
             <li><a href="{{ url('/?search=' . urlencode($kat['nama_kategori'])) }}" class="text-gray-500 hover:text-accent transition-colors font-medium">{{ $kat['nama_kategori'] }}</a></li>
             @endforeach
           @endif

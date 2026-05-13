@@ -3,46 +3,62 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Layanan;
+use Illuminate\Support\Facades\DB;
 
 class ServiceController extends Controller
 {
     public function show($id)
     {
+        $layanan = Layanan::with(['pengguna', 'jasa.kategori', 'satuan'])->findOrFail($id);
+
         $profileData = [
-            'id_pengguna' => 1,
-            'nama_pengguna' => 'Budi Santoso',
-            'no_telp' => '08123456789',
-            'alamat_lengkap' => 'Jl. Merdeka No.1, Jakarta',
-            'email' => 'budi@example.com',
-            'nama_kategori' => 'Desain Grafis',
-            'id_kategori' => 1,
-            'nama_satuan' => 'proyek',
-            'tarif' => 150000,
-            'deskripsi' => 'Saya adalah desainer grafis profesional dengan pengalaman 5 tahun. Siap membantu membuat logo, banner, dan kebutuhan desain lainnya dengan cepat dan hasil memuaskan.'
+            'id_pengguna' => $layanan->id_pengguna,
+            'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : '-',
+            'no_telp' => $layanan->pengguna ? $layanan->pengguna->no_telp : '-',
+            'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
+            'email' => $layanan->pengguna ? $layanan->pengguna->email : '-',
+            'nama_kategori' => $layanan->jasa && $layanan->jasa->kategori ? $layanan->jasa->kategori->nama_kategori : '-',
+            'id_kategori' => $layanan->jasa ? $layanan->jasa->id_kategori : null,
+            'nama_satuan' => $layanan->satuan ? $layanan->satuan->nama_satuan : '-',
+            'tarif' => $layanan->tarif,
+            'deskripsi' => $layanan->deskripsi,
+            'id_layanan' => $layanan->id_layanan,
+            'nama_jasa' => $layanan->jasa ? $layanan->jasa->nama_jasa : '-'
         ];
 
-        $offeredJasaList = [
-            ['id_layanan' => 1, 'nama_jasa' => 'Desain Logo'],
-            ['id_layanan' => 2, 'nama_jasa' => 'Desain Banner'],
-        ];
+        // Offered Jasa List (Jasa lain yang ditawarkan oleh user yang sama)
+        $offeredJasaListQuery = Layanan::with('jasa')->where('id_pengguna', $layanan->id_pengguna)->get();
+        $offeredJasaList = [];
+        foreach ($offeredJasaListQuery as $oj) {
+            $offeredJasaList[] = [
+                'id_layanan' => $oj->id_layanan,
+                'nama_jasa' => $oj->jasa ? $oj->jasa->nama_jasa : '-'
+            ];
+        }
 
-        $ulasanList = [
-            [
-                'rating' => 5,
-                'komentar' => 'Hasil desain logo sangat memuaskan dan cepat! Revisi juga dilayani dengan baik.',
-                'tanggal_ulasan' => '2026-04-10',
-                'nama_pengguna' => 'Andi Wijaya'
-            ],
-            [
-                'rating' => 4,
-                'komentar' => 'Bagus, tapi warnanya kurang pas awalnya. Setelah revisi jadi lebih baik.',
-                'tanggal_ulasan' => '2026-04-12',
-                'nama_pengguna' => 'Citra Kirana'
-            ],
-        ];
+        // Ulasan List
+        $ulasans = DB::table('ulasan')
+            ->join('booking', 'ulasan.id_booking', '=', 'booking.id_booking')
+            ->join('pengguna', 'ulasan.id_pengguna', '=', 'pengguna.id_pengguna')
+            ->where('booking.id_layanan', $id)
+            ->select('ulasan.rating', 'ulasan.komentar', 'ulasan.tanggal_ulasan', 'pengguna.nama_pengguna')
+            ->get();
 
-        $total_ulasan = 2;
-        $avg_rating = 4.5;
+        $ulasanList = [];
+        $totalRating = 0;
+        foreach ($ulasans as $u) {
+            $ulasanList[] = [
+                'rating' => $u->rating,
+                'komentar' => $u->komentar,
+                'tanggal_ulasan' => $u->tanggal_ulasan,
+                'nama_pengguna' => $u->nama_pengguna
+            ];
+            $totalRating += $u->rating;
+        }
+
+        $total_ulasan = count($ulasanList);
+        $avg_rating = $total_ulasan > 0 ? round($totalRating / $total_ulasan, 1) : 0;
 
         return view('layanan.show', compact('profileData', 'offeredJasaList', 'ulasanList', 'total_ulasan', 'avg_rating'));
     }

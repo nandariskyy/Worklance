@@ -39,16 +39,28 @@
       </div>
     </div>
 
-    @if ($success)
+    @if (session('success'))
     <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
       <svg class="w-5 h-5 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      {{ $success }}
+      {{ session('success') }}
     </div>
     @endif
-    @if ($error)
+    
+    @if (session('error'))
     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
       <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      {{ $error }}
+      {{ session('error') }}
+    </div>
+    @endif
+
+    @if ($errors->any())
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex flex-col gap-2 shadow-sm">
+      @foreach ($errors->all() as $err)
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        {{ $err }}
+      </div>
+      @endforeach
     </div>
     @endif
 
@@ -95,7 +107,7 @@
                        ]) }})" class="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200/50" title="Edit Layanan">
                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                        </button>
-                       <form method="POST" action="" onsubmit="return confirm('Apakah Anda yakin ingin menghapus seluruh layanan dalam kategori ini?');">
+                       <form method="POST" action="{{ route('freelancer.kelola') }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus seluruh layanan dalam kategori ini?');">
                            @csrf
                            <input type="hidden" name="action" value="delete">
                            <input type="hidden" name="id_kategori" value="{{ $cat['id_kategori'] }}">
@@ -137,7 +149,7 @@
               </div>
 
               <!-- Form Body -->
-              <form method="POST" action="" class="p-6 md:p-10 space-y-8 bg-white relative">
+              <form method="POST" action="{{ route('freelancer.kelola') }}" class="p-6 md:p-10 space-y-8 bg-white relative">
                   @csrf
                   <input type="hidden" name="action" value="save">
                   
