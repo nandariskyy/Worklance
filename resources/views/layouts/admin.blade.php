@@ -13,7 +13,7 @@
   <aside class="w-72 bg-dark text-white flex flex-col hidden md:flex flex-shrink-0 z-20">
     <!-- Logo -->
     <div class="h-20 flex items-center px-8 border-b border-white/10 shrink-0">
-      <a href="{{ route('home') }}" class="flex items-center gap-2 group">
+      <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 group">
         <div class="w-10 h-10 bg-white text-dark rounded-xl flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform duration-300 shadow-md">W</div>
         <span class="text-2xl font-bold tracking-tight">Work<span class="text-accent">Lance</span></span>
       </a>

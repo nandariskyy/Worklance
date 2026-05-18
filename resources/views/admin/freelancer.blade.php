@@ -17,10 +17,6 @@
         <h1 class="text-3xl font-bold text-dark mb-1">Kelola Freelancer</h1>
         <p class="text-gray-500">Total {{ count($freelancerList ?? []) }} freelancer terdaftar.</p>
     </div>
-    <button onclick="document.getElementById('modalForm').classList.remove('hidden')" class="px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-bold shadow-md hover:bg-orange-700 transition-colors flex items-center gap-2 cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        Tambah Freelancer
-    </button>
 </div>
 
 @if (session('success'))
@@ -53,14 +49,16 @@
             <th class="p-4 pl-6 font-semibold">ID</th>
             <th class="p-4 font-semibold">Nama</th>
             <th class="p-4 font-semibold">Kategori</th>
-            <th class="p-4 font-semibold">Status</th>
+            <th class="p-4 font-semibold">Jasa</th>
+            <th class="p-4 font-semibold">Tarif</th>
+            <th class="p-4 font-semibold">Satuan</th>
             <th class="p-4 font-semibold pr-6 text-right">Aksi</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
             @forelse ($freelancerList ?? [] as $fl)
             <tr class="hover:bg-gray-50/50 transition-colors">
-            <td class="p-4 pl-6 text-sm text-gray-500">{{ $fl['id_pengguna'] }}</td>
+            <td class="p-4 pl-6 text-sm text-gray-500">{{ $fl['id_layanan'] }}</td>
             <td class="p-4">
                 <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold text-xs">{{ substr($fl['nama_pengguna'], 0, 1) }}</div>
@@ -71,9 +69,11 @@
                 </div>
             </td>
             <td class="p-4">
-                <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-full text-[11px] font-bold inline-block">{{ $fl['kategori'] }}</span>
+                <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-full text-[11px] font-bold inline-block">{{ $fl['kategori'] ?? '-' }}</span>
             </td>
-            <td class="p-4 text-sm font-bold text-green-600">{{ $fl['status'] ?? 'Aktif' }}</td>
+            <td class="p-4 text-sm font-medium text-dark">{{ $fl['jasa'] ?? '-' }}</td>
+            <td class="p-4 text-sm text-gray-600 whitespace-nowrap">Rp {{ number_format($fl['tarif'] ?? 0, 0, ',', '.') }}</td>
+            <td class="p-4 text-sm text-gray-500">{{ $fl['satuan'] ?? '-' }}</td>
             <td class="p-4 pr-6 text-right">
                 <div class="flex items-center justify-end gap-2">
                 <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Detail" onclick="openDetailModal({{ json_encode($fl) }})">
@@ -96,70 +96,12 @@
     </div>
 </div>
 
-<!-- Modal Form -->
-<div id="modalForm" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-    <h3 class="font-bold text-dark text-lg">Tambah Freelancer Baru</h3>
-    <button onclick="document.getElementById('modalForm').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
-    </div>
-    <form class="p-6 space-y-4">
-    <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Pengguna (Role Freelancer) <span class="text-red-500">*</span></label>
-        <select name="id_pengguna" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-        <option value="">-- Pilih Pengguna --</option>
-        </select>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Kategori <span class="text-red-500">*</span></label>
-        <select name="id_kategori" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-            <option value="">-- Pilih --</option>
-        </select>
-        </div>
-        <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Jasa <span class="text-red-500">*</span></label>
-        <select name="id_jasa" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-            <option value="">-- Pilih --</option>
-        </select>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Tarif</label>
-        <input type="text" name="tarif" placeholder="cth: 150000" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-        </div>
-        <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Satuan</label>
-        <select name="id_satuan" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-            <option value="">-- Pilih --</option>
-        </select>
-        </div>
-    </div>
-
-    <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Deskripsi</label>
-        <textarea name="deskripsi" rows="3" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium resize-none"></textarea>
-    </div>
-
-    <div class="flex gap-3 pt-4">
-        <button type="button" onclick="document.getElementById('modalForm').classList.add('hidden')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
-        <button type="button" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Simpan</button>
-    </div>
-    </form>
-</div>
-</div>
-
 <!-- Modal Detail Freelancer -->
-<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalDetailContent">
     <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
     <h3 class="font-bold text-dark text-lg">Detail Freelancer</h3>
-    <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+    <button onclick="closeModal('modalDetail')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
     </div>
@@ -192,23 +134,43 @@
         </div>
         
         <div class="mt-8">
-            <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="w-full py-2.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-200 transition-colors">Tutup</button>
+            <button onclick="closeModal('modalDetail')" class="w-full py-2.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-200 transition-colors">Tutup</button>
         </div>
     </div>
 </div>
 </div>
 
 <script>
+function openModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
 function openDetailModal(fl) {
-    document.getElementById('detail_avatar').innerText = fl.nama_pengguna.substring(0, 1).toUpperCase();
+    document.getElementById('detail_avatar').innerText = (fl.nama_pengguna || 'F').substring(0, 1).toUpperCase();
     document.getElementById('detail_nama_pengguna').innerText = fl.nama_pengguna;
     document.getElementById('detail_email').innerText = fl.email;
-    document.getElementById('detail_id').innerText = fl.id_pengguna;
+    document.getElementById('detail_id').innerText = fl.id_layanan;
     document.getElementById('detail_kategori').innerText = fl.kategori || '-';
     document.getElementById('detail_no_telp').innerText = fl.no_telp || '-';
     document.getElementById('detail_status').innerText = fl.status || 'Aktif';
     
-    document.getElementById('modalDetail').classList.remove('hidden');
+    openModal('modalDetail');
 }
 </script>
 

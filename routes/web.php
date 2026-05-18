@@ -88,5 +88,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/kelola/jasa', [AdminController::class, 'storeJasa'])->name('kelola.jasa');
         Route::put('/kelola/jasa/{id}', [AdminController::class, 'updateJasa'])->name('kelola.jasa.update');
         Route::delete('/kelola/jasa/{id}', [AdminController::class, 'destroyJasa'])->name('kelola.jasa.destroy');
+        Route::post('/kelola/satuan', [AdminController::class, 'storeSatuan'])->name('kelola.satuan');
+        Route::put('/kelola/satuan/{id}', [AdminController::class, 'updateSatuan'])->name('kelola.satuan.update');
+        Route::delete('/kelola/satuan/{id}', [AdminController::class, 'destroySatuan'])->name('kelola.satuan.destroy');
     });
 });

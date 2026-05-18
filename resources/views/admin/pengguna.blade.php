@@ -50,7 +50,8 @@
 <!-- Filter Tabs -->
 <div class="flex gap-2 mb-6 flex-wrap">
     <a href="{{ route('admin.pengguna') }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? 'Semua') === 'Semua' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Semua</a>
-    <a href="{{ route('admin.pengguna', ['role' => 'Klien']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'Klien' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Klien</a>
+    <a href="{{ route('admin.pengguna', ['role' => 'Admin']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'Admin' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Admin</a>
+    <a href="{{ route('admin.pengguna', ['role' => 'User']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'User' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">User</a>
     <a href="{{ route('admin.pengguna', ['role' => 'Freelancer']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'Freelancer' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Freelancer</a>
 </div>
 
@@ -62,6 +63,7 @@
             <tr class="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
             <th class="p-4 pl-6 font-semibold">ID</th>
             <th class="p-4 font-semibold">Nama</th>
+            <th class="p-4 font-semibold">Username</th>
             <th class="p-4 font-semibold">Email</th>
             <th class="p-4 font-semibold">No. Telp</th>
             <th class="p-4 font-semibold">Role</th>
@@ -78,12 +80,13 @@
                 <p class="font-bold text-dark text-sm whitespace-nowrap">{{ $pg['nama_pengguna'] }}</p>
                 </div>
             </td>
+            <td class="p-4 text-sm text-gray-600">{{ $pg['username'] ?? '-' }}</td>
             <td class="p-4 text-sm text-gray-600">{{ $pg['email'] }}</td>
             <td class="p-4 text-sm text-gray-500">{{ $pg['no_telp'] ?? '-' }}</td>
             <td class="p-4">
                 @php
                 $roleBadge = 'bg-gray-100 text-gray-600 border-gray-200';
-                if (($pg['role'] ?? '') == 'Klien') $roleBadge = 'bg-blue-50 text-blue-600 border-blue-200';
+                if (($pg['role'] ?? '') == 'User') $roleBadge = 'bg-blue-50 text-blue-600 border-blue-200';
                 if (($pg['role'] ?? '') == 'Freelancer') $roleBadge = 'bg-green-50 text-green-600 border-green-200';
                 @endphp
                 <span class="px-3 py-1 {{ $roleBadge }} rounded-full text-[11px] font-bold border inline-block">{{ $pg['role'] ?? '-' }}</span>
@@ -115,11 +118,11 @@
 </div>
 
 <!-- Modal Form Tambah/Edit -->
-<div id="modalForm" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div id="modalForm" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalFormContent">
     <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
     <h3 class="font-bold text-dark text-lg">Tambah Pengguna Baru</h3>
-    <button onclick="document.getElementById('modalForm').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+    <button onclick="closeModal('modalForm')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
     </div>
@@ -134,7 +137,7 @@
         <label class="block text-sm font-bold text-dark mb-1.5">Role <span class="text-red-500">*</span></label>
         <select name="id_role" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
             <option value="1">Admin</option>
-            <option value="2" selected>Klien</option>
+            <option value="2" selected>User</option>
             <option value="3">Freelancer</option>
         </select>
         </div>
@@ -168,7 +171,7 @@
     </div>
 
     <div class="flex gap-3 pt-4">
-        <button type="button" onclick="document.getElementById('modalForm').classList.add('hidden')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
+        <button type="button" onclick="closeModal('modalForm')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
         <button type="submit" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Simpan</button>
     </div>
     </form>
@@ -176,11 +179,11 @@
 </div>
 
 <!-- Modal Edit Pengguna -->
-<div id="modalEdit" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div id="modalEdit" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalEditContent">
     <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
     <h3 class="font-bold text-dark text-lg">Edit Pengguna</h3>
-    <button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+    <button onclick="closeModal('modalEdit')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
     </div>
@@ -196,7 +199,7 @@
         <label class="block text-sm font-bold text-dark mb-1.5">Role <span class="text-red-500">*</span></label>
         <select id="edit_id_role" name="id_role" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
             <option value="1">Admin</option>
-            <option value="2">Klien</option>
+            <option value="2">User</option>
             <option value="3">Freelancer</option>
         </select>
         </div>
@@ -230,7 +233,7 @@
     </div>
 
     <div class="flex gap-3 pt-4">
-        <button type="button" onclick="document.getElementById('modalEdit').classList.add('hidden')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
+        <button type="button" onclick="closeModal('modalEdit')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
         <button type="submit" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Perbarui</button>
     </div>
     </form>
@@ -238,56 +241,92 @@
 </div>
 
 <!-- Modal Detail Pengguna -->
-<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-    <h3 class="font-bold text-dark text-lg">Detail Pengguna</h3>
-    <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
+<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalDetailContent">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="font-bold text-[#1e293b] text-lg" id="detail_title">Detail Pengguna #</h3>
+        <button onclick="closeModal('modalDetail')" class="p-2 text-gray-400 hover:text-dark rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
     </div>
     <div class="p-6">
         <div class="flex items-center gap-4 mb-6">
-            <div id="detail_avatar" class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-2xl"></div>
+            <div id="detail_avatar" class="w-16 h-16 rounded-full bg-[#f1f5f9] text-[#64748b] flex items-center justify-center font-bold text-2xl"></div>
             <div>
-                <h4 id="detail_nama_pengguna" class="text-xl font-bold text-dark"></h4>
-                <p id="detail_role" class="text-sm font-semibold text-accent"></p>
+                <h4 id="detail_nama_pengguna" class="text-lg font-bold text-[#1e293b]"></h4>
+                <p id="detail_username" class="text-sm font-medium text-[#64748b] mb-1"></p>
+                <span id="detail_role" class="px-2 py-0.5 bg-[#f1f5f9] text-[#475569] border border-[#e2e8f0] rounded text-[10px] font-bold tracking-wider uppercase"></span>
             </div>
         </div>
         
-        <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-y-4 gap-x-4 mb-6">
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">ID Pengguna</p>
-                <p id="detail_id" class="text-sm font-medium text-dark"></p>
+                <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">EMAIL</p>
+                <p id="detail_email" class="text-sm font-medium text-[#1e293b]"></p>
             </div>
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Username</p>
-                <p id="detail_username" class="text-sm font-medium text-dark"></p>
+                <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">NO. TELP</p>
+                <p id="detail_no_telp" class="text-sm font-medium text-[#1e293b]"></p>
             </div>
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Email</p>
-                <p id="detail_email" class="text-sm font-medium text-dark"></p>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">No. Telepon</p>
-                    <p id="detail_no_telp" class="text-sm font-medium text-dark"></p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Tanggal Lahir</p>
-                    <p id="detail_tanggal_lahir" class="text-sm font-medium text-dark"></p>
-                </div>
+                <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">TANGGAL LAHIR</p>
+                <p id="detail_tanggal_lahir" class="text-sm font-medium text-[#1e293b]"></p>
             </div>
         </div>
         
-        <div class="mt-8">
-            <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="w-full py-2.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-200 transition-colors">Tutup</button>
+        <div class="border-t border-gray-100 pt-6">
+            <h5 class="text-sm font-bold text-[#64748b] mb-4">Informasi Alamat</h5>
+            <div class="grid grid-cols-2 gap-y-4 gap-x-4 mb-4">
+                <div>
+                    <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">PROVINSI</p>
+                    <p id="detail_provinsi" class="text-sm font-medium text-[#1e293b]"></p>
+                </div>
+                <div>
+                    <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">KABUPATEN/KOTA</p>
+                    <p id="detail_kabupaten" class="text-sm font-medium text-[#1e293b]"></p>
+                </div>
+                <div>
+                    <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">KECAMATAN</p>
+                    <p id="detail_kecamatan" class="text-sm font-medium text-[#1e293b]"></p>
+                </div>
+                <div>
+                    <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">DESA/KELURAHAN</p>
+                    <p id="detail_desa" class="text-sm font-medium text-[#1e293b]"></p>
+                </div>
+            </div>
+            <div class="bg-[#f8fafc] p-4 rounded-xl">
+                <p class="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wide mb-1">ALAMAT LENGKAP</p>
+                <p id="detail_alamat" class="text-sm font-medium text-[#475569]"></p>
+            </div>
         </div>
     </div>
 </div>
 </div>
 
 <script>
+function openModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Add event listener to buttons that open form/edit modal
+document.querySelector('button[onclick="document.getElementById(\'modalForm\').classList.remove(\'hidden\')"]').setAttribute('onclick', "openModal('modalForm')");
+
 function openEditModal(user) {
     document.getElementById('edit_username').value = user.username;
     document.getElementById('edit_id_role').value = user.id_role;
@@ -297,20 +336,26 @@ function openEditModal(user) {
     document.getElementById('edit_tanggal_lahir').value = user.tanggal_lahir || '';
     
     document.getElementById('editForm').action = "/admin/pengguna/" + user.id_pengguna;
-    document.getElementById('modalEdit').classList.remove('hidden');
+    openModal('modalEdit');
 }
 
 function openDetailModal(user) {
+    document.getElementById('detail_title').innerText = 'Detail Pengguna #' + user.id_pengguna;
     document.getElementById('detail_avatar').innerText = user.nama_pengguna.substring(0, 1).toUpperCase();
     document.getElementById('detail_nama_pengguna').innerText = user.nama_pengguna;
+    document.getElementById('detail_username').innerText = '@' + (user.username || '');
     document.getElementById('detail_role').innerText = user.role || '-';
-    document.getElementById('detail_id').innerText = user.id_pengguna;
-    document.getElementById('detail_username').innerText = user.username;
     document.getElementById('detail_email').innerText = user.email;
     document.getElementById('detail_no_telp').innerText = user.no_telp || '-';
     document.getElementById('detail_tanggal_lahir').innerText = user.tanggal_lahir || '-';
     
-    document.getElementById('modalDetail').classList.remove('hidden');
+    document.getElementById('detail_provinsi').innerText = user.provinsi || '-';
+    document.getElementById('detail_kabupaten').innerText = user.kabupaten || '-';
+    document.getElementById('detail_kecamatan').innerText = user.kecamatan || '-';
+    document.getElementById('detail_desa').innerText = user.desa || '-';
+    document.getElementById('detail_alamat').innerText = user.alamat_lengkap || '-';
+    
+    openModal('modalDetail');
 }
 </script>
 
