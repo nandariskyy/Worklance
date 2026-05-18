@@ -8,6 +8,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FreelancerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\HistoryController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -37,3 +38,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/pengajuan', [AdminController::class, 'pengajuan'])->name('pengajuan');
     Route::get('/kelola', [AdminController::class, 'kelola'])->name('kelola');
 });
+
+// Riwayat
+Route::get('/history', [HistoryController::class, 'index']);
