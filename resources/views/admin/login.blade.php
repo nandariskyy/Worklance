@@ -42,7 +42,8 @@
           <p class="text-gray-500 font-medium">Masukkan kredensial administrator Anda.</p>
         </div>
 
-        <form method="GET" action="{{ route('admin.dashboard') }}" class="space-y-6">
+        <form method="POST" action="{{ route('login') }}" class="space-y-6">
+          @csrf
           <div>
             <label class="block text-sm font-bold text-dark mb-2">Email Admin</label>
             <div class="relative">

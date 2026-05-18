@@ -11,7 +11,7 @@
       <span class="text-dark font-bold">Ringkasan Pesanan</span>
     </nav>
 
-    @if ($bookingSaved)
+    @if (session('success'))
     <!-- Booking Success -->
     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-10 text-center">
       <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -29,10 +29,10 @@
     </div>
     @else
 
-    @if ($error)
+    @if (session('error'))
     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      {{ $error }}
+      {{ session('error') }}
     </div>
     @endif
 
@@ -98,7 +98,7 @@
 
       <div class="flex flex-col sm:flex-row gap-4">
         @if ($loggedIn)
-        <form method="POST" action="" id="confirmForm" class="flex-1">
+        <form method="POST" action="{{ route('booking.ringkasan') }}" id="confirmForm" class="flex-1">
           @csrf
           <input type="hidden" name="id_layanan" id="formIdLayanan">
           <input type="hidden" name="tanggal_booking" id="formTanggal">
@@ -134,7 +134,7 @@
       return `https://wa.me/${telp}?text=${encodeURIComponent(msg)}`;
     }
 
-    @if (!$bookingSaved)
+    @if (!session('success'))
     if (data) {
       document.getElementById('sumNama').textContent = data.freelancerNama;
       document.getElementById('sumJasa').textContent = data.namaJasa || data.freelancerJasa;

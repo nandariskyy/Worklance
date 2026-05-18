@@ -9,6 +9,13 @@
     <p class="text-gray-500">Atur kategori layanan, jasa, dan satuan tarif.</p>
 </div>
 
+@if (session('success'))
+<div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
+    <svg class="w-5 h-5 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    {{ session('success') }}
+</div>
+@endif
+
 <!-- Tabs -->
 @php
     $activeTab = request('tab', 'kategori');
@@ -24,13 +31,14 @@
     <!-- Form -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="font-bold text-dark text-lg mb-4">Tambah Kategori</h3>
-        <form class="space-y-4">
+        <form method="POST" action="{{ route('admin.kelola.kategori') }}" class="space-y-4">
+        @csrf
         <div>
             <label class="block text-sm font-bold text-dark mb-1.5">Nama Kategori <span class="text-red-500">*</span></label>
             <input type="text" name="nama_kategori" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium" placeholder="cth: Desain & Kreatif">
         </div>
         <div class="flex gap-3">
-            <button type="button" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Simpan</button>
+            <button type="submit" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Simpan</button>
         </div>
         </form>
     </div>
@@ -63,12 +71,16 @@
                 </td>
                 <td class="p-4 pr-6 text-right">
                 <div class="flex items-center justify-end gap-2">
-                    <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
+                    <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit" onclick="openEditKategoriModal({{ json_encode($kat) }})">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     </button>
-                    <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
+                    <form method="POST" action="{{ route('admin.kelola.kategori.destroy', $kat['id_kategori']) }}" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
                 </div>
                 </td>
             </tr>
@@ -85,11 +97,15 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="font-bold text-dark text-lg mb-4">Tambah Jasa</h3>
-        <form class="space-y-4">
+        <form method="POST" action="{{ route('admin.kelola.jasa') }}" class="space-y-4">
+        @csrf
         <div>
             <label class="block text-sm font-bold text-dark mb-1.5">Kategori <span class="text-red-500">*</span></label>
-            <select name="id_kategori_jasa" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+            <select name="id_kategori" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
             <option value="">-- Pilih Kategori --</option>
+            @foreach($kategoriList ?? [] as $k)
+                <option value="{{ $k['id_kategori'] }}">{{ $k['nama_kategori'] }}</option>
+            @endforeach
             </select>
         </div>
         <div>
@@ -126,12 +142,16 @@
                 </td>
                 <td class="p-4 pr-6 text-right">
                 <div class="flex items-center justify-end gap-2">
-                    <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit" onclick="openEditJasaModal({{ json_encode($js) }})">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     </button>
-                    <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
+                    <form method="POST" action="{{ route('admin.kelola.jasa.destroy', $js['id_jasa']) }}" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jasa ini?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
                 </div>
                 </td>
             </tr>
@@ -143,6 +163,89 @@
         </div>
     </div>
 </div>
+</div>
 @endif
+
+<!-- Modal Edit Kategori -->
+<div id="modalEditKategori" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+    <h3 class="font-bold text-dark text-lg">Edit Kategori</h3>
+    <button onclick="document.getElementById('modalEditKategori').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+    </div>
+    <form id="formEditKategori" method="POST" action="" class="p-6 space-y-4">
+        @csrf
+        @method('PUT')
+        <div>
+            <label class="block text-sm font-bold text-dark mb-1.5">Nama Kategori <span class="text-red-500">*</span></label>
+            <input type="text" id="edit_nama_kategori" name="nama_kategori" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+        </div>
+        <div>
+            <label class="block text-sm font-bold text-dark mb-1.5">Deskripsi</label>
+            <textarea id="edit_deskripsi_kategori" name="deskripsi" rows="3" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium"></textarea>
+        </div>
+        <div class="flex gap-3 pt-4">
+            <button type="button" onclick="document.getElementById('modalEditKategori').classList.add('hidden')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
+            <button type="submit" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Perbarui</button>
+        </div>
+    </form>
+</div>
+</div>
+
+<!-- Modal Edit Jasa -->
+<div id="modalEditJasa" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+    <h3 class="font-bold text-dark text-lg">Edit Jasa</h3>
+    <button onclick="document.getElementById('modalEditJasa').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+    </div>
+    <form id="formEditJasa" method="POST" action="" class="p-6 space-y-4">
+        @csrf
+        @method('PUT')
+        <div>
+            <label class="block text-sm font-bold text-dark mb-1.5">Kategori <span class="text-red-500">*</span></label>
+            <select id="edit_id_kategori_jasa" name="id_kategori" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+            <option value="">-- Pilih Kategori --</option>
+            @foreach($kategoriList ?? [] as $k)
+                <option value="{{ $k['id_kategori'] }}">{{ $k['nama_kategori'] }}</option>
+            @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-bold text-dark mb-1.5">Nama Jasa <span class="text-red-500">*</span></label>
+            <input type="text" id="edit_nama_jasa" name="nama_jasa" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+        </div>
+        <div>
+            <label class="block text-sm font-bold text-dark mb-1.5">Deskripsi</label>
+            <textarea id="edit_deskripsi_jasa" name="deskripsi" rows="3" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium"></textarea>
+        </div>
+        <div class="flex gap-3 pt-4">
+            <button type="button" onclick="document.getElementById('modalEditJasa').classList.add('hidden')" class="flex-1 py-2.5 text-center text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl border border-gray-200 transition-colors">Batal</button>
+            <button type="submit" class="flex-1 py-2.5 bg-accent text-white text-sm font-bold rounded-xl shadow-md hover:bg-orange-700 transition-colors cursor-pointer">Perbarui</button>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+function openEditKategoriModal(kat) {
+    document.getElementById('edit_nama_kategori').value = kat.nama_kategori;
+    document.getElementById('edit_deskripsi_kategori').value = kat.deskripsi || '';
+    document.getElementById('formEditKategori').action = "/admin/kelola/kategori/" + kat.id_kategori;
+    document.getElementById('modalEditKategori').classList.remove('hidden');
+}
+
+function openEditJasaModal(js) {
+    document.getElementById('edit_id_kategori_jasa').value = js.id_kategori;
+    document.getElementById('edit_nama_jasa').value = js.nama_jasa;
+    document.getElementById('edit_deskripsi_jasa').value = js.deskripsi || '';
+    document.getElementById('formEditJasa').action = "/admin/kelola/jasa/" + js.id_jasa;
+    document.getElementById('modalEditJasa').classList.remove('hidden');
+}
+</script>
 
 @endsection
