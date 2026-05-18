@@ -37,7 +37,7 @@
 
   <div class="flex flex-col gap-2 min-w-[150px]">
     @if ($p['status_booking'] == 'MENUNGGU')
-      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirm('Yakin ingin membatalkan pesanan ini?');">
+      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirmAction(event, 'Yakin ingin membatalkan pesanan ini?');">
         @csrf
         <input type="hidden" name="id_booking" value="{{ $p['id_booking'] }}">
         <input type="hidden" name="status" value="DIBATALKAN">

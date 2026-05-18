@@ -93,14 +93,19 @@
         </svg>
       </button>
 
-      <!-- Global Search -->
-      <div class="hidden sm:flex flex-1 max-w-lg items-center relative">
-        <svg class="w-5 h-5 text-gray-400 absolute left-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-        <input type="text" placeholder="Cari booking, freelancer, atau pengguna..."
-          class="w-full bg-gray-100/50 border border-transparent focus:border-gray-200 hover:bg-gray-100 rounded-full pl-12 pr-4 py-2.5 text-sm outline-none transition-all placeholder-gray-400 text-dark">
-      </div>
+      <!-- Dynamic Header Content -->
+      @hasSection('header_content')
+          @yield('header_content')
+      @else
+          <!-- Global Search Default -->
+          <div class="hidden sm:flex flex-1 max-w-lg items-center relative">
+              <svg class="w-5 h-5 text-gray-400 absolute left-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <input type="text" placeholder="Cari booking, freelancer, atau pengguna..."
+              class="w-full bg-gray-100/50 border border-transparent focus:border-gray-200 hover:bg-gray-100 rounded-full pl-12 pr-4 py-2.5 text-sm outline-none transition-all placeholder-gray-400 text-dark">
+          </div>
+      @endif
 
       <!-- Right Nav -->
       <div class="flex items-center gap-3 md:gap-5 ml-auto">
@@ -134,6 +139,69 @@
         @yield('content')
     </div>
   </main>
+
+  <!-- Global Custom Confirm Modal -->
+  <div id="customConfirmModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-95 opacity-0 duration-200" id="customConfirmModalContent">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-dark mb-2">Konfirmasi Aksi</h3>
+        <p class="text-gray-500 text-sm mb-6 leading-relaxed" id="customConfirmMessage">Apakah Anda yakin ingin melanjutkan?</p>
+        <div class="flex gap-3">
+          <button type="button" onclick="closeCustomConfirm()" class="flex-1 py-2.5 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Batal</button>
+          <button type="button" id="customConfirmBtn" class="flex-1 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-md shadow-red-500/20">Ya, Lanjutkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentFormToSubmit = null;
+
+    function openCustomConfirm(message, formElement) {
+        document.getElementById('customConfirmMessage').innerText = message;
+        currentFormToSubmit = formElement;
+        
+        const modal = document.getElementById('customConfirmModal');
+        const content = document.getElementById('customConfirmModalContent');
+        
+        modal.classList.remove('hidden');
+        // trigger animation
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeCustomConfirm() {
+        const modal = document.getElementById('customConfirmModal');
+        const content = document.getElementById('customConfirmModalContent');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            currentFormToSubmit = null;
+        }, 200);
+    }
+
+    document.getElementById('customConfirmBtn').addEventListener('click', function() {
+        if (currentFormToSubmit) {
+            currentFormToSubmit.submit();
+        }
+    });
+
+    function confirmAction(event, message) {
+        event.preventDefault();
+        openCustomConfirm(message, event.target);
+        return false;
+    }
+  </script>
 
 </body>
 </html>

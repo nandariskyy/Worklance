@@ -3,6 +3,15 @@
 @section('title', 'Kelola Pengguna | Admin WorkLance')
 
 @section('content')
+@section('header_content')
+<div class="hidden sm:flex flex-1 max-w-lg items-center relative">
+    <svg class="w-5 h-5 text-gray-400 absolute left-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    <form method="GET" action="{{ route('admin.pengguna') }}" class="w-full">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pengguna..." class="w-full bg-gray-100/50 border border-transparent focus:border-gray-200 hover:bg-gray-100 rounded-full pl-12 pr-4 py-2.5 text-sm outline-none transition-all placeholder-gray-400 text-dark">
+    </form>
+</div>
+@endsection
+
 <!-- Page Title & Action -->
 <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
@@ -87,7 +96,7 @@
                 <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit" onclick="openEditModal({{ json_encode($pg) }})">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </button>
-                <form method="POST" action="{{ route('admin.pengguna.destroy', $pg['id_pengguna']) }}" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini? Semua jasanya juga akan terhapus.');">
+                <form method="POST" action="{{ route('admin.pengguna.destroy', $pg['id_pengguna']) }}" class="inline-block" onsubmit="return confirmAction(event, 'Apakah Anda yakin ingin menghapus pengguna ini? Semua jasanya juga akan terhapus.');">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
