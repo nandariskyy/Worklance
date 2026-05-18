@@ -67,13 +67,13 @@
         <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-8">
           <h2 class="text-xl font-bold text-red-600 mb-2">Hapus Akun</h2>
           <p class="text-gray-500 text-sm mb-6">Tindakan ini tidak dapat dibatalkan. Semua data (termasuk pesanan dan jasa Anda) akan dihapus secara permanen.</p>
-          <form method="POST" action="{{ route('pengaturan.keamanan.hapus') }}" class="space-y-4">
+          <form method="POST" action="{{ route('pengaturan.keamanan.hapus') }}" class="space-y-4" onsubmit="return confirmAction(event, 'Apakah Anda sangat yakin ingin menghapus akun ini secara permanen?')">
             @csrf
             <div>
               <label class="text-sm font-bold text-dark block mb-2">Ketik <span class="text-red-600">HAPUS</span> untuk konfirmasi</label>
               <input type="text" name="konfirmasi_hapus" required class="w-full border border-red-200 rounded-xl px-4 py-3 bg-red-50/50 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium text-dark transition-colors" placeholder="HAPUS">
             </div>
-            <button type="submit" onclick="return confirm('Apakah Anda sangat yakin ingin menghapus akun ini secara permanen?')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all cursor-pointer">Hapus Akun Saya</button>
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all cursor-pointer">Hapus Akun Saya</button>
           </form>
         </div>
       </div>

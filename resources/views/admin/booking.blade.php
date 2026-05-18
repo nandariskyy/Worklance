@@ -3,6 +3,14 @@
 @section('title', 'Kelola Booking | Admin WorkLance')
 
 @section('content')
+@section('header_content')
+<div class="hidden sm:flex flex-1 max-w-lg items-center relative">
+    <svg class="w-5 h-5 text-gray-400 absolute left-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    <form method="GET" action="{{ route('admin.booking') }}" class="w-full">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ID Booking atau Nama Client..." class="w-full bg-gray-100/50 border border-transparent focus:border-gray-200 hover:bg-gray-100 rounded-full pl-12 pr-4 py-2.5 text-sm outline-none transition-all placeholder-gray-400 text-dark">
+    </form>
+</div>
+@endsection
 <!-- Page Title & Action -->
 <div class="mb-8">
     <h1 class="text-3xl font-bold text-dark mb-1">Kelola Booking</h1>
@@ -91,7 +99,7 @@
                 <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Detail" onclick="openDetailModal({{ json_encode($bk) }})">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 </button>
-                <form method="POST" action="{{ route('admin.booking.destroy', $bk['raw_id']) }}" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus booking ini secara permanen?');">
+                <form method="POST" action="{{ route('admin.booking.destroy', $bk['raw_id']) }}" class="inline-block" onsubmit="return confirmAction(event, 'Apakah Anda yakin ingin menghapus booking ini secara permanen?');">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">

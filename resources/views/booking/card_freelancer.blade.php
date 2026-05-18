@@ -37,20 +37,20 @@
 
   <div class="flex flex-col gap-2 min-w-[150px]">
     @if ($p['status_booking'] == 'MENUNGGU')
-      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirm('Terima pesanan ini?');">
+      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirmAction(event, 'Terima pesanan ini?');">
         @csrf
         <input type="hidden" name="id_booking" value="{{ $p['id_booking'] }}">
         <input type="hidden" name="status" value="DIPROSES">
         <button type="submit" class="w-full px-4 py-2 bg-green-500 text-white hover:bg-green-600 rounded-lg text-sm font-bold transition-colors shadow-sm">Terima & Proses</button>
       </form>
-      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirm('Yakin ingin menolak pesanan ini?');">
+      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirmAction(event, 'Yakin ingin menolak pesanan ini?');">
         @csrf
         <input type="hidden" name="id_booking" value="{{ $p['id_booking'] }}">
         <input type="hidden" name="status" value="DITOLAK">
         <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">Tolak</button>
       </form>
     @elseif ($p['status_booking'] == 'DIPROSES')
-      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirm('Pekerjaan sudah selesai sepenuhnya?');">
+      <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirmAction(event, 'Pekerjaan sudah selesai sepenuhnya?');">
         @csrf
         <input type="hidden" name="id_booking" value="{{ $p['id_booking'] }}">
         <input type="hidden" name="status" value="SELESAI">

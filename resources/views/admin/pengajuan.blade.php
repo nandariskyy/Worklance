@@ -3,6 +3,14 @@
 @section('title', 'Verifikasi Pengajuan | Admin WorkLance')
 
 @section('content')
+@section('header_content')
+<div class="hidden sm:flex flex-1 max-w-lg items-center relative">
+    <svg class="w-5 h-5 text-gray-400 absolute left-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    <form method="GET" action="{{ route('admin.pengajuan') }}" class="w-full">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama freelancer..." class="w-full bg-gray-100/50 border border-transparent focus:border-gray-200 hover:bg-gray-100 rounded-full pl-12 pr-4 py-2.5 text-sm outline-none transition-all placeholder-gray-400 text-dark">
+    </form>
+</div>
+@endsection
 <!-- Page Title & Action -->
 <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
@@ -56,7 +64,7 @@
             <td class="p-4 pr-6 text-right">
                 <div class="flex items-center justify-end gap-2">
                 @if (($pj['status'] ?? '') === 'MENUNGGU')
-                    <form method="POST" action="{{ route('admin.pengajuan.verifikasi') }}" class="inline-block" onsubmit="return confirm('Yakin menyetujui pengajuan ini?');">
+                    <form method="POST" action="{{ route('admin.pengajuan.verifikasi') }}" class="inline-block" onsubmit="return confirmAction(event, 'Yakin menyetujui pengajuan ini?');">
                         @csrf
                         <input type="hidden" name="id_pengajuan" value="{{ $pj['id_pengajuan'] }}">
                         <input type="hidden" name="action" value="approve">
@@ -64,7 +72,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </button>
                     </form>
-                    <form method="POST" action="{{ route('admin.pengajuan.verifikasi') }}" class="inline-block" onsubmit="return confirm('Yakin menolak pengajuan ini?');">
+                    <form method="POST" action="{{ route('admin.pengajuan.verifikasi') }}" class="inline-block" onsubmit="return confirmAction(event, 'Yakin menolak pengajuan ini?');">
                         @csrf
                         <input type="hidden" name="id_pengajuan" value="{{ $pj['id_pengajuan'] }}">
                         <input type="hidden" name="action" value="reject">
