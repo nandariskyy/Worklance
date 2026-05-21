@@ -38,8 +38,36 @@
           
           <h2 class="text-xl font-bold text-dark mb-6 relative z-10">Informasi Akun</h2>
           
-          <form method="POST" action="{{ route('pengaturan.informasi') }}" class="space-y-5 relative z-10">
+          <form id="hapusFotoForm" method="POST" action="{{ route('pengaturan.informasi.hapus-foto') }}" class="hidden">
             @csrf
+          </form>
+
+          <form method="POST" action="{{ route('pengaturan.informasi') }}" enctype="multipart/form-data" class="space-y-5 relative z-10">
+            @csrf
+            
+            <div class="flex items-center gap-6 mb-6">
+              <div class="relative group" id="foto_preview_container">
+                @if($user->foto_profil)
+                  <img id="foto_preview_img" src="{{ asset('storage/' . $user->foto_profil) }}" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md">
+                @else
+                  <img id="foto_preview_img" src="" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md hidden">
+                  <div id="foto_preview_initial" class="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl border-4 border-white shadow-md">
+                    {{ strtoupper(substr($user->nama_pengguna, 0, 1)) }}
+                  </div>
+                @endif
+              </div>
+              <div class="flex-1">
+                <label class="text-sm font-bold text-dark block mb-2">Foto Profil</label>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <input type="file" id="foto_profil_input" name="foto_profil" accept="image/jpeg, image/png, image/jpg, image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-colors cursor-pointer">
+                  @if($user->foto_profil)
+                    <button type="button" onclick="openCustomConfirm('Apakah Anda yakin ingin menghapus foto profil ini?', document.getElementById('hapusFotoForm'))" class="shrink-0 text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl transition-colors">Hapus Foto</button>
+                  @endif
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Format: JPG, PNG, WEBP. Maks: 2MB.</p>
+              </div>
+            </div>
+
             <div>
               <label class="text-sm font-bold text-dark block mb-2">Nama Lengkap</label>
               <input type="text" name="nama_pengguna" value="{{ old('nama_pengguna', $user->nama_pengguna) }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark transition-colors">
@@ -60,4 +88,25 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.getElementById('foto_profil_input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          let img = document.getElementById('foto_preview_img');
+          let initial = document.getElementById('foto_preview_initial');
+          if(img) {
+              img.src = event.target.result;
+              img.classList.remove('hidden');
+          }
+          if(initial) {
+              initial.classList.add('hidden');
+          }
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
 @endsection

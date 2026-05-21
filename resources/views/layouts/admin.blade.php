@@ -118,10 +118,13 @@
 
         <div class="h-6 w-px bg-gray-200 hidden sm:block"></div>
 
-        <!-- Profile Dropdown -->
         <div class="flex items-center gap-3 cursor-pointer group">
-          <div class="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center font-bold text-sm ring-2 ring-gray-100 group-hover:ring-primary transition-all">
-            {{ $adminInitials ?? 'A' }}
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ring-2 ring-gray-100 group-hover:ring-primary transition-all {{ auth()->user()->foto_profil ? '' : 'bg-accent text-white' }}">
+            @if(auth()->check() && auth()->user()->foto_profil)
+              <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="Admin Profile" class="w-10 h-10 rounded-full object-cover">
+            @else
+              {{ $adminInitials ?? 'A' }}
+            @endif
           </div>
           <div class="hidden md:block text-sm">
             <p class="font-bold text-dark leading-tight">{{ $adminNama ?? 'Admin' }}</p>
