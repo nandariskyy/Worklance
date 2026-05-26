@@ -36,4 +36,13 @@ class Layanan extends Model
         // Since ulasan is linked to booking, and booking to layanan
         return $this->hasManyThrough(Ulasan::class, Booking::class, 'id_layanan', 'id_booking', 'id_layanan', 'id_booking');
     }
+
+    public function gambarLayanan()
+    {
+        return $this->hasMany(
+            GambarLayanan::class,
+            'id_layanan', 'id_layanan'
+        );
+    }
+
 }

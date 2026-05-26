@@ -3,7 +3,7 @@
 @section('title', 'Kelola Jasa | WorkLance')
 
 @section('content')
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full relative z-0">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grow w-full relative z-0">
     <!-- Breadcrumb -->
     <nav class="flex items-center text-sm gap-2 font-medium mb-8">
       <a href="{{ url('/') }}" class="text-gray-500 hover:text-accent transition-colors">Beranda</a>
@@ -41,14 +41,14 @@
 
     @if (session('success'))
     <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
-      <svg class="w-5 h-5 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <svg class="w-5 h-5 shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       {{ session('success') }}
     </div>
     @endif
     
     @if (session('error'))
     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
-      <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       {{ session('error') }}
     </div>
     @endif
@@ -57,7 +57,7 @@
     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex flex-col gap-2 shadow-sm">
       @foreach ($errors->all() as $err)
       <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         {{ $err }}
       </div>
       @endforeach
@@ -78,16 +78,13 @@
                <div class="w-16 h-16 shrink-0 bg-primary/10 rounded-xl flex items-center justify-center text-primary/70">
                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                </div>
-               <div class="flex-grow">
+               <div class="grow">
                    <div class="flex items-center gap-3 mb-2">
-                     <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 rounded-md">Kategori Keahlian</span>
+                     <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 rounded-md">{{ $cat['nama_kategori'] }}</span>
                    </div>
-                   <h2 class="text-2xl font-bold text-dark mb-1">{{ $cat['nama_kategori'] }}</h2>
+                   <h2 class="text-2xl font-bold text-dark mb-1">{{ $cat['namajasa'] ?: 'Tidak ada namajasa.' }}</h2>
                    <p class="text-sm font-medium text-accent mb-4">{{ $cat['jasa_names'] }}</p>
                    
-                   <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 leading-relaxed text-sm text-gray-600 line-clamp-2">
-                       {{ $cat['namajasa'] ?: 'Tidak ada namajasa.' }}
-                   </div>
                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 leading-relaxed text-sm text-gray-600 line-clamp-2">
                        {{ $cat['deskripsi'] ?: 'Tidak ada deskripsi.' }}
                    </div>
@@ -95,7 +92,7 @@
                
                <div class="md:w-56 shrink-0 w-full flex flex-row md:flex-col justify-between md:justify-center items-center md:items-end border-t md:border-t-0 md:border-l border-gray-100 pt-5 md:pt-0 pl-0 md:pl-6 gap-3">
                    <div class="text-left md:text-right">
-                       <p class="text-xs font-bold text-gray-400 mb-0.5 uppercase tracking-wide">Harga Dasar</p>
+                       <p class="text-xs font-bold text-gray-400 mb-0.5 uppercase tracking-wide">Harga</p>
                        <p class="text-xl font-black text-dark">Rp {{ number_format($cat['tarif'], 0, ',', '.') }}</p>
                        <p class="text-xs text-gray-400 mt-0.5">/ {{ $cat['nama_satuan'] ?: 'Pesanan' }}</p>
                    </div>
@@ -107,6 +104,7 @@
                            'id_satuan' => $cat['id_satuan'],
                            'namajasa' => $cat['namajasa'],
                            'deskripsi' => $cat['deskripsi'],
+                           'gambar' => $cat['gambar'] ?? [],
                            'arr_jasa' => json_decode($cat['jasa_ids_json'], true)
                        ]) }})" class="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200/50" title="Edit Layanan">
                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -128,7 +126,7 @@
   </div>
 
   <!-- MODAL: ADD/EDIT FORM -->
-  <div id="serviceModal" class="fixed inset-0 z-[100] hidden">
+  <div id="serviceModal" class="fixed inset-0 z-100 hidden">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-dark/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
       
@@ -153,7 +151,7 @@
               </div>
 
               <!-- Form Body -->
-              <form method="POST" action="{{ route('freelancer.kelola') }}" class="p-6 md:p-10 space-y-8 bg-white relative">
+              <form method="POST" action="{{ route('freelancer.kelola') }}" enctype="multipart/form-data" class="p-6 md:p-10 space-y-8 bg-white relative">
                   @csrf
                   <input type="hidden" name="action" value="save">
                   
@@ -176,7 +174,7 @@
                     <div>
                       <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
                         <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Harga Dasar / Min Order <span class="text-red-500">*</span>
+                        Harga <span class="text-red-500">*</span>
                       </label>
                       <div class="flex shadow-sm rounded-xl overflow-hidden">
                         <span class="inline-flex items-center px-4 border border-r-0 border-gray-200 bg-gray-100 text-gray-600 font-bold text-sm">Rp</span>
@@ -282,9 +280,10 @@
     const inputDeskripsi = document.getElementById('inputDeskripsi');
     const containerWrapper = document.getElementById('jasaContainerWrapper');
     const items = document.querySelectorAll('.jasa-item');
-    const checkboxes = document.querySelectorAll('.jasa-checkbox');
+    const checkboxes = document.querySelectorAll('.jasa-radio');
     const noJasaMsg = document.getElementById('noJasaMsg');
 
+    
     function resetForm() {
         modalTitle.innerText = "Tambah Layanan Baru";
         selKategori.value = '';
@@ -374,6 +373,24 @@
             });
         }
         
+        previewContainer.innerHTML = '';
+
+        if(data.gambar && data.gambar.length > 0){
+            data.gambar.forEach((img) => {
+                const div = document.createElement('div');
+
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img 
+                        src="/storage/${img}" 
+                        class="w-full h-24 object-cover rounded-lg border border-gray-200"
+                    >
+                `;
+                previewContainer.appendChild(div);
+            });
+            imageCountMsg.textContent = `${data.gambar.length}/5 gambar dipilih`;
+        }
+
         modal.classList.remove('hidden');
         document.body.classList.add('modal-open');
     }
