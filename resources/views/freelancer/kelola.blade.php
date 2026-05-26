@@ -86,6 +86,9 @@
                    <p class="text-sm font-medium text-accent mb-4">{{ $cat['jasa_names'] }}</p>
                    
                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 leading-relaxed text-sm text-gray-600 line-clamp-2">
+                       {{ $cat['namajasa'] ?: 'Tidak ada namajasa.' }}
+                   </div>
+                   <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 leading-relaxed text-sm text-gray-600 line-clamp-2">
                        {{ $cat['deskripsi'] ?: 'Tidak ada deskripsi.' }}
                    </div>
                </div>
@@ -102,6 +105,7 @@
                            'id_kategori' => $cat['id_kategori'],
                            'tarif' => $cat['tarif'],
                            'id_satuan' => $cat['id_satuan'],
+                           'namajasa' => $cat['namajasa'],
                            'deskripsi' => $cat['deskripsi'],
                            'arr_jasa' => json_decode($cat['jasa_ids_json'], true)
                        ]) }})" class="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200/50" title="Edit Layanan">
@@ -188,32 +192,70 @@
                     </div>
                   </div>
 
-                  <!-- Checklist Jasa -->
+                  <!-- Checklist Jasa (Hanya Pilih 1) -->
                   <div id="jasaContainerWrapper" class="pt-2 hidden">
-                    <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
-                      <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                      Tandai Jasa yang Anda Sediakan <span class="text-red-500">*</span>
-                    </label>
-                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-                      <div id="jasaCheckboxList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        @foreach ($jasaList as $js)
-                        <label class="jasa-item flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-accent/40 transition-all" data-kategori="{{ $js['id_kategori'] }}">
-                          <input type="checkbox" name="jasa[]" value="{{ $js['id_jasa'] }}" class="jasa-checkbox w-5 h-5 text-accent rounded border-gray-300 focus:ring-accent transition-colors accent-accent">
-                          <span class="text-sm font-medium text-gray-700">{{ $js['nama_jasa'] }}</span>
-                        </label>
-                        @endforeach
+                      <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                          <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                          Pilih Jasa yang Anda Sediakan <span class="text-red-500">*</span>
+                      </label>
+                      <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                          <div id="jasaCheckboxList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                              @foreach ($jasaList as $js)
+                              <!-- Perubahan: Menggunakan type="radio" dan name="jasa" (tanpa []) -->
+                              <label class="jasa-item flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-accent/40 transition-all" data-kategori="{{ $js['id_kategori'] }}">
+                                  <input type="radio" name="jasa" value="{{ $js['id_jasa'] }}" class="jasa-radio w-5 h-5 text-accent rounded-full border-gray-300 focus:ring-accent transition-colors accent-accent">
+                                  <span class="text-sm font-medium text-gray-700">{{ $js['nama_jasa'] }}</span>
+                              </label>
+                              @endforeach
+                          </div>
+                          <p id="noJasaMsg" class="text-sm text-gray-500 hidden py-4 text-center">Tidak ada sub-jasa di kategori ini.</p>
                       </div>
-                      <p id="noJasaMsg" class="text-sm text-gray-500 hidden py-4 text-center">Tidak ada sub-jasa di kategori ini.</p>
-                    </div>
                   </div>
 
+                  <!-- Nama Jasa -->
+                  <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                      <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      Nama Jasa
+                    </label>
+                    <textarea name="namajasa" id="inputNamaJasa" rows="6" placeholder="Masukkan nama jasa yang ditawarkan..." required class="w-full border border-gray-200 rounded-2xl px-5 py-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none transition-colors"></textarea>
+                  </div>
+                  
                   <!-- Deskripsi -->
                   <div>
                     <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
                       <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                      Deskripsi Profil
+                      Deskripsi Jasa
                     </label>
                     <textarea name="deskripsi" id="inputDeskripsi" rows="6" placeholder="Beri gambaran detail apa saja yang Anda kerjakan di kategori ini, prosedur kerja, dll..." required class="w-full border border-gray-200 rounded-2xl px-5 py-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none transition-colors"></textarea>
+                  </div>
+
+                  <!-- Portofolio Image Upload -->
+                  <div class="portofolio-container mt-4">
+                      <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                          <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                          Upload Portofolio <span class="text-red-500">*</span>
+                          <span class="text-xs font-normal text-gray-500">(Min 1, Max 5 gambar)</span>
+                      </label>
+                      
+                      <div class="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-accent transition-colors" id="dropZone">
+                          <input type="file" name="portofolio_images[]" id="portofolioInput" class="hidden" accept="image/*" multiple>
+                          
+                          <label for="portofolioInput" class="cursor-pointer">
+                              <div class="flex flex-col items-center">
+                                  <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                  <p class="text-sm text-gray-600 mb-1">Klik atau drag & drop gambar di sini</p>
+                                  <p class="text-xs text-gray-500">PNG, JPG, JPEG (Max 2MB per gambar)</p>
+                              </div>
+                          </label>
+                          
+                          <!-- Preview Container -->
+                          <div id="previewContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4"></div>
+                          
+                          <p id="imageCountMsg" class="text-xs text-gray-500 mt-2">0/5 gambar dipilih</p>
+                      </div>
+                      
+                      <p class="text-xs text-red-500 mt-1 hidden" id="imageErrorMsg">Jumlah gambar harus antara 1 dan 5.</p>
                   </div>
 
                   <div class="pt-6 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-gray-100">
@@ -236,6 +278,7 @@
     const selKategori = document.getElementById('selectKategori');
     const inputTarif = document.getElementById('inputTarif');
     const selectSatuan = document.getElementById('selectSatuan');
+    const inputNamaJasa = document.getElementById('inputNamaJasa');
     const inputDeskripsi = document.getElementById('inputDeskripsi');
     const containerWrapper = document.getElementById('jasaContainerWrapper');
     const items = document.querySelectorAll('.jasa-item');
@@ -247,6 +290,7 @@
         selKategori.value = '';
         inputTarif.value = '';
         selectSatuan.value = '';
+        inputNamaJasa.value = '';
         inputDeskripsi.value = '';
         selKategori.disabled = false;
         updateCheckboxesVis();
@@ -316,6 +360,7 @@
 
         inputTarif.value = data.tarif;
         selectSatuan.value = data.id_satuan;
+        inputNamaJasa.value = data.namajasa;
         inputDeskripsi.value = data.deskripsi;
         
         updateCheckboxesVis();
@@ -339,4 +384,87 @@
         Array.from(selKategori.options).forEach(opt => { opt.disabled = false; });
     }
   </script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const portofolioInput = document.getElementById('portofolioInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const imageCountMsg = document.getElementById('imageCountMsg');
+    const imageErrorMsg = document.getElementById('imageErrorMsg');
+    const MAX_IMAGES = 5;
+    const MIN_IMAGES = 1;
+    
+    let selectedFiles = [];
+
+    portofolioInput.addEventListener('change', function(e) {
+        handleFiles(Array.from(e.target.files));
+    });
+
+    function handleFiles(files) {
+        if (selectedFiles.length + files.length > MAX_IMAGES) {
+            showError(`Maksimal ${MAX_IMAGES} gambar.`);
+            return;
+        }
+
+        files.forEach(file => {
+            if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
+                showError('Hanya format PNG, JPG, JPEG yang diperbolehkan.');
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showError('Ukuran maksimal per gambar adalah 2MB.');
+                return;
+            }
+
+            selectedFiles.push(file);
+        });
+
+        renderPreviews();
+    }
+
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-24 object-cover rounded-lg border border-gray-200">
+                    <button type="button" onclick="removeImage(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                `;
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        updateCountMessage();
+        updateInputFile();
+    }
+
+    window.removeImage = function(index) {
+        selectedFiles.splice(index, 1);
+        renderPreviews();
+    };
+
+    function updateInputFile() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        portofolioInput.files = dataTransfer.files;
+    }
+
+    function updateCountMessage() {
+        imageCountMsg.textContent = `${selectedFiles.length}/${MAX_IMAGES} gambar dipilih`;
+        imageCountMsg.className = selectedFiles.length < MIN_IMAGES ? 'text-xs text-red-500 mt-2' : 'text-xs text-gray-500 mt-2';
+    }
+
+    function showError(message) {
+        imageErrorMsg.textContent = message;
+        imageErrorMsg.classList.remove('hidden');
+        setTimeout(() => imageErrorMsg.classList.add('hidden'), 3000);
+    }
+});
+</script>
 @endsection

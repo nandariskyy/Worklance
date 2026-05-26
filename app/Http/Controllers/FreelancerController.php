@@ -123,6 +123,7 @@ class FreelancerController extends Controller
                     'id_kategori' => $id_kategori,
                     'nama_kategori' => $layanan->jasa->kategori->nama_kategori,
                     'tarif' => $layanan->tarif,
+                    'namajasa' => $layanan->jasa->nama_jasa,
                     'deskripsi' => $layanan->deskripsi,
                     'id_satuan' => $layanan->satuan ? $layanan->satuan->id_satuan : null,
                     'nama_satuan' => $layanan->satuan ? $layanan->satuan->nama_satuan : '-',
@@ -139,6 +140,7 @@ class FreelancerController extends Controller
                 'id_kategori' => $g['id_kategori'],
                 'nama_kategori' => $g['nama_kategori'],
                 'tarif' => $g['tarif'],
+                'namajasa' => $g['namajasa'] ?? null,
                 'deskripsi' => $g['deskripsi'],
                 'id_satuan' => $g['id_satuan'],
                 'nama_satuan' => $g['nama_satuan'],
@@ -152,7 +154,7 @@ class FreelancerController extends Controller
         return view('freelancer.kelola', compact('kategoriList', 'jasaList', 'satuanList', 'myCategories', 'isFreelancer', 'user'));
     }
 
-    public function storeLayanan(Request $request)
+        public function storeLayanan(Request $request)
     {
         $user = auth()->user();
         if ($user->id_role != 3) {
@@ -163,15 +165,17 @@ class FreelancerController extends Controller
         $id_kategori = $request->input('id_kategori');
 
         if ($action === 'save') {
+            // Perubahan: Validasi untuk single value (bukan array)
             $request->validate([
                 'id_kategori' => 'required',
                 'tarif' => 'required|numeric',
-                'jasa' => 'required|array|min:1',
+                'jasa' => 'required', // Tidak lagi array|min:1
             ], [
-                'jasa.required' => 'Minimal satu jasa harus ditandai.'
+                'jasa.required' => 'Jasa harus dipilih.'
             ]);
 
-            $jasas = $request->input('jasa');
+            // Perubahan: Hanya dapat 1 nilai (bukan array)
+            $id_jasa = $request->input('jasa');
             $id_satuan = $request->input('id_satuan');
             $tarif = $request->input('tarif');
             $deskripsi = $request->input('deskripsi');
@@ -179,45 +183,44 @@ class FreelancerController extends Controller
             try {
                 DB::beginTransaction();
 
-                $existingLayanans = Layanan::where('id_pengguna', $user->id_pengguna)
+                // Cek apakah sudah ada layanan untuk kategori ini
+                $existingLayanan = Layanan::where('id_pengguna', $user->id_pengguna)
                     ->whereHas('jasa', function($q) use ($id_kategori) {
                         $q->where('id_kategori', $id_kategori);
-                    })->get();
-                
-                $existingJasaIds = $existingLayanans->pluck('id_jasa')->toArray();
-                $layananIds = $existingLayanans->pluck('id_layanan')->toArray();
-                
-                $toAdd = array_diff($jasas, $existingJasaIds);
-                $toRemove = array_diff($existingJasaIds, $jasas);
+                    })->first();
 
-                if (!empty($layananIds)) {
-                    Layanan::whereIn('id_layanan', $layananIds)
-                        ->update([
-                            'tarif' => $tarif,
-                            'deskripsi' => $deskripsi,
-                            'id_satuan' => $id_satuan ?: null
-                        ]);
+                if ($existingLayanan) {
+                    // Cek jika jasa berubah dan ada booking lama
+                    if ($existingLayanan->id_jasa != $id_jasa) {
+                        $hasBooking = Booking::where('id_layanan', $existingLayanan->id_layanan)->exists();
+                        
+                        if ($hasBooking) {
+                            throw new \Exception("Tidak dapat mengubah jasa karena sudah ada riwayat pesanan.");
+                        }
+                        
+                        // Hapus layanan lama, buat yang baru
+                        $existingLayanan->delete();
+                        $existingLayanan = null;
+                    }
                 }
 
-                foreach ($toAdd as $jasa_id) {
+                if ($existingLayanan) {
+                    // Update layanan yang sudah ada
+                    $existingLayanan->update([
+                        'id_jasa' => $id_jasa, // Update juga jasa jika berbeda
+                        'tarif' => $tarif,
+                        'deskripsi' => $deskripsi,
+                        'id_satuan' => $id_satuan ?: null
+                    ]);
+                } else {
+                    // Buat layanan baru
                     Layanan::create([
                         'id_pengguna' => $user->id_pengguna,
-                        'id_jasa' => $jasa_id,
+                        'id_jasa' => $id_jasa,
                         'id_satuan' => $id_satuan ?: null,
                         'tarif' => $tarif,
                         'deskripsi' => $deskripsi
                     ]);
-                }
-
-                foreach ($toRemove as $jasa_id) {
-                    $hasBooking = Booking::whereHas('layanan', function($q) use ($user, $jasa_id) {
-                        $q->where('id_pengguna', $user->id_pengguna)->where('id_jasa', $jasa_id);
-                    })->exists();
-                    
-                    if ($hasBooking) {
-                        throw new \Exception("Tidak dapat menghapus pilihan sub-jasa yang sudah pernah dipesan. (Centang kembali atau tambahkan yang lain)");
-                    }
-                    Layanan::where('id_pengguna', $user->id_pengguna)->where('id_jasa', $jasa_id)->delete();
                 }
 
                 DB::commit();
@@ -226,23 +229,25 @@ class FreelancerController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
                 $msg = $e->getMessage();
-                if (strpos($msg, 'Tidak dapat') === false) {
+                if (strpos($msg, 'Tidak dapat') === false && strpos($msg, 'Tidak dapat') === false) {
                     $msg = 'Terjadi kesalahan sistem saat menyimpan data layanan.';
                 }
                 return redirect()->back()->with('error', $msg);
             }
+
         } elseif ($action === 'delete') {
+            // Logika delete tetap sama
             try {
                 DB::beginTransaction();
 
-                $hasBooking = Booking::whereHas('layanan.jasa', function($q) use ($user, $id_kategori) {
+                $hasBooking = Booking::whereHas('layanan.jasa', function($q) use ($id_kategori) {
                     $q->where('id_kategori', $id_kategori);
                 })->whereHas('layanan', function($q) use ($user) {
                     $q->where('id_pengguna', $user->id_pengguna);
                 })->exists();
 
                 if ($hasBooking) {
-                    throw new \Exception("Tidak dapat menghapus kategori yang memiliki riwayat pesanan (Cukup edit harganya saja).");
+                    throw new \Exception("Tidak dapat menghapus kategori yang memiliki riwayat pesanan.");
                 }
 
                 $layanansToDelete = Layanan::where('id_pengguna', $user->id_pengguna)
@@ -266,11 +271,7 @@ class FreelancerController extends Controller
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                $msg = $e->getMessage();
-                if (strpos($msg, 'Tidak dapat') === false) {
-                    $msg = 'Gagal menghapus layanan.';
-                }
-                return redirect()->back()->with('error', $msg);
+                return redirect()->back()->with('error', $e->getMessage());
             }
         }
         
