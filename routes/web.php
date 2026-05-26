@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/daftar-freelancer', [FreelancerController::class, 'storePengajuan']);
     Route::get('/kelola-jasa', [FreelancerController::class, 'kelola'])->name('freelancer.kelola');
     Route::post('/kelola-jasa', [FreelancerController::class, 'storeLayanan']);
+    Route::get('/freelancer/{id_layanan}', [FreelancerController::class, 'profilFreelancer'])->name('freelancer.profil');
 });
 
 // Booking

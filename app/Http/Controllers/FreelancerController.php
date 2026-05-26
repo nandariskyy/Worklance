@@ -152,6 +152,67 @@ class FreelancerController extends Controller
         return view('freelancer.kelola', compact('kategoriList', 'jasaList', 'satuanList', 'myCategories', 'isFreelancer', 'user'));
     }
 
+    public function profilFreelancer($id_layanan)
+    {
+        $layanan = Layanan::with(['jasa.kategori', 'satuan', 'pengguna'])
+            ->findOrFail($id_layanan);
+
+        $id_pengguna = $layanan->id_pengguna;
+
+        $profileData = [
+            'id_layanan'    => $layanan->id_layanan,
+            'id_pengguna'   => $id_pengguna,
+            'nama_jasa'     => $layanan->jasa->nama_jasa ?? '-',
+            'nama_pengguna' => $layanan->pengguna->nama_pengguna ?? '-',
+            'no_telp'       => $layanan->pengguna->no_telp ?? '-',
+            'alamat_lengkap'=> $layanan->pengguna->alamat_lengkap ?? '-',
+            'tarif'         => $layanan->tarif,
+            'nama_satuan'   => $layanan->satuan->nama_satuan ?? 'proyek',
+            'deskripsi'     => $layanan->deskripsi ?? '',
+            'nama_kategori' => $layanan->jasa->kategori->nama_kategori ?? '-',
+        ];
+
+        $jasaList = Layanan::with(['jasa', 'satuan'])
+            ->where('id_pengguna', $id_pengguna)
+            ->get()
+            ->map(function($l) {
+                return [
+                    'id_layanan'  => $l->id_layanan,
+                    'nama_jasa'   => $l->jasa->nama_jasa ?? '-',
+                    'tarif'       => $l->tarif,
+                    'nama_satuan' => $l->satuan->nama_satuan ?? 'proyek',
+                    'avg_rating'  => 5.0,
+                    'gambar'      => null,
+                ];
+            })->toArray();
+
+       // GANTI bagian ulasan yang lama dengan ini:
+
+        $ulasanRaw = DB::table('ulasan')
+            ->join('booking', 'ulasan.id_booking', '=', 'booking.id_booking')
+            ->join('layanan', 'booking.id_layanan', '=', 'layanan.id_layanan')
+            ->join('pengguna', 'ulasan.id_pengguna', '=', 'pengguna.id_pengguna')
+            ->where('layanan.id_pengguna', $id_pengguna)  // semua ulasan untuk freelancer ini
+            ->select(
+                'pengguna.nama_pengguna',
+                'ulasan.rating',
+                'ulasan.komentar',
+                'ulasan.tanggal_ulasan'
+            )
+            ->orderBy('ulasan.tanggal_ulasan', 'desc')
+            ->get();
+
+        $ulasanList   = $ulasanRaw->map(fn($u) => (array) $u)->toArray();
+        $total_ulasan = count($ulasanList);
+        $avg_rating   = $total_ulasan > 0
+            ? number_format($ulasanRaw->avg('rating'), 1)
+            : '5.0';
+
+        return view('layanan.profil_freelancer', compact(
+            'profileData', 'jasaList', 'ulasanList', 'avg_rating', 'total_ulasan'
+        ));
+    }
+
     public function storeLayanan(Request $request)
     {
         $user = auth()->user();

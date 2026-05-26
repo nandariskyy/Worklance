@@ -19,8 +19,8 @@
               <img src="https://ui-avatars.com/api/?name={{ urlencode($profileData['nama_pengguna']) }}&background=96B3BF&color=fff&size=200" alt="Avatar" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl object-cover">
             </div>
             <div class="text-center sm:text-left">
-              <h1 class="text-3xl md:text-4xl font-extrabold text-dark tracking-tight mb-2">{{ $profileData['nama_pengguna'] }}</h1>
-              <h2 class="text-lg md:text-xl text-accent font-semibold mb-4">{{ $profileData['nama_kategori'] }}</h2>
+              <h1 class="text-3xl md:text-4xl font-extrabold text-dark tracking-tight mb-2">{{ $profileData['nama_jasa'] }}</h1>
+              <h2 class="text-lg md:text-xl text-accent font-semibold mb-4">{{ $profileData['nama_pengguna'] }}</h2>
               
               <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm font-medium">
                 <div class="flex items-center gap-1.5 bg-yellow-50 text-yellow-700 px-3 py-1.5 rounded-full border border-yellow-100">
@@ -98,7 +98,7 @@
           <p class="text-gray-500 text-sm mb-6">Hubungi freelancer untuk memulai proyekmu.</p>
 
           <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6 flex-shrink-0">
-            <span class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Harga Mulai Dari</span>
+            <span class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Harga</span>
             <div class="flex items-end gap-2 text-accent">
               <span class="text-2xl font-extrabold leading-none">Rp {{ number_format($profileData['tarif'], 0, ',', '.') }}</span>
               <span class="text-sm font-medium text-gray-500 mb-0.5">/ {{ $profileData['nama_satuan'] ?? 'proyek' }}</span>
@@ -106,20 +106,6 @@
           </div>
 
           <form id="bookingForm" class="space-y-5">
-            <div>
-              <label class="block text-sm font-bold text-dark mb-2">Jenis Jasa <span class="text-red-500">*</span></label>
-              <div class="relative">
-                <select id="selLayanan" required class="w-full border border-gray-200 rounded-xl pl-4 pr-10 py-3.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark appearance-none cursor-pointer">
-                  <option value="">Pilih layanan...</option>
-                  @foreach ($offeredJasaList as $oj)
-                  <option value="{{ $oj['id_layanan'] }}" data-nama="{{ $oj['nama_jasa'] }}">{{ $oj['nama_jasa'] }}</option>
-                  @endforeach
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-              </div>
-            </div>
 
             <div>
               <label class="block text-sm font-bold text-dark mb-2">Deskripsi Pekerjaan <span class="text-red-500">*</span></label>
@@ -132,7 +118,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-dark mb-2">Kapan proyek ini harus selesai? <span class="text-red-500">*</span></label>
+              <label class="block text-sm font-bold text-dark mb-2">Kapan proyek ini harus dikerjakan? <span class="text-red-500">*</span></label>
               <div class="relative">
                 <input type="date" id="inpTanggal" required min="{{ date('Y-m-d') }}" class="w-full border border-gray-200 rounded-xl pl-4 pr-10 py-3.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark">
               </div>
@@ -187,9 +173,8 @@
       bookingForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const selLayanan = document.getElementById('selLayanan');
-        const idLayanan = selLayanan.value;
-        const namaJasa = selLayanan.options[selLayanan.selectedIndex].getAttribute('data-nama');
+        const idLayanan = @json($profileData['id_layanan']);
+        const namaJasa = @json($profileData['nama_jasa']);
         const catatan = document.getElementById('inpCatatan').value;
         const alamat = document.getElementById('inpAlamat').value;
         const tanggal = document.getElementById('inpTanggal').value;
