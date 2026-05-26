@@ -46,8 +46,12 @@ $basePath = url('/');
           <!-- User Dropdown Wrap -->
           <div class="relative ml-2" id="userMenuWrap">
             <button onclick="document.getElementById('userDropdown').classList.toggle('hidden')" class="flex items-center gap-3 cursor-pointer group focus:outline-none">
-              <div class="w-10 h-10 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold relative">
-                {{ substr($userName, 0, 1) }}
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold relative {{ auth()->user()->foto_profil ? '' : 'bg-primary/20 text-primary' }}">
+                @if(auth()->user()->foto_profil)
+                  <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                @else
+                  {{ substr($userName, 0, 1) }}
+                @endif
                 @if ($userRole == 3)
                   <div class="absolute bottom-0 right-0 w-3 h-3 {{ $isFreelancer ? 'bg-green-500' : 'bg-gray-400' }} border-2 border-white rounded-full" title="{{ $isFreelancer ? 'Online' : 'Offline' }}"></div>
                 @endif
@@ -92,8 +96,12 @@ $basePath = url('/');
     <div class="px-4 py-6 space-y-4">
       @if ($loggedIn)
         <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
-          <div class="w-10 h-10 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold">
-            {{ substr($userName, 0, 1) }}
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold {{ auth()->user()->foto_profil ? '' : 'bg-primary/20 text-primary' }}">
+            @if(auth()->user()->foto_profil)
+              <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+            @else
+              {{ substr($userName, 0, 1) }}
+            @endif
           </div>
           <div>
             <p class="font-bold text-dark text-sm">{{ $userName }}</p>

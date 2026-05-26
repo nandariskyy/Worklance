@@ -12,6 +12,7 @@ use App\Models\Kecamatan;
 use App\Models\Desa;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -28,18 +29,46 @@ class ProfileController extends Controller
         $request->validate([
             'nama_pengguna' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:pengguna,username,' . $user->id_pengguna . ',id_pengguna',
-            'tanggal_lahir' => 'nullable|date'
+            'tanggal_lahir' => 'nullable|date',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ], [
-            'username.unique' => 'Username sudah digunakan.'
+            'username.unique' => 'Username sudah digunakan.',
+            'foto_profil.image' => 'File harus berupa gambar.',
+            'foto_profil.mimes' => 'Format gambar harus jpeg, png, jpg, atau webp.',
+            'foto_profil.max' => 'Ukuran gambar maksimal 2MB.'
         ]);
 
-        $user->update([
+        $data = [
             'nama_pengguna' => $request->nama_pengguna,
             'username' => $request->username,
             'tanggal_lahir' => $request->tanggal_lahir
-        ]);
+        ];
+
+        if ($request->hasFile('foto_profil')) {
+            // Hapus foto lama jika ada
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+
+            // Simpan foto baru
+            $path = $request->file('foto_profil')->store('profiles', 'public');
+            $data['foto_profil'] = $path;
+        }
+
+        $user->update($data);
 
         return redirect()->back()->with('success', 'Informasi akun berhasil diperbarui.');
+    }
+
+    public function hapusFotoProfil(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+            Storage::disk('public')->delete($user->foto_profil);
+            $user->update(['foto_profil' => null]);
+            return redirect()->back()->with('success', 'Foto profil berhasil dihapus.');
+        }
+        return redirect()->back();
     }
 
     public function kontak()

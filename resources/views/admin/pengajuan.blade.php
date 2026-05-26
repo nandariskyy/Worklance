@@ -35,7 +35,8 @@
             <tr class="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
             <th class="p-4 pl-6 font-semibold">Tanggal</th>
             <th class="p-4 font-semibold">Nama Pengguna</th>
-            <th class="p-4 font-semibold">Kategori Diajukan</th>
+            <th class="p-4 font-semibold">Kontak</th>
+            <th class="p-4 font-semibold">NIK</th>
             <th class="p-4 font-semibold">Status</th>
             <th class="p-4 font-semibold pr-6 text-right">Aksi</th>
             </tr>
@@ -44,13 +45,17 @@
             @forelse ($pengajuanList ?? [] as $pj)
             <tr class="hover:bg-gray-50/50 transition-colors">
             <td class="p-4 pl-6 text-sm text-gray-500 whitespace-nowrap">
-                {{ $pj['tanggal_pengajuan'] }}
+                {{ date('d-m-Y', strtotime($pj['tanggal_pengajuan'])) }}
             </td>
             <td class="p-4">
                 <div class="font-bold text-dark text-sm">{{ $pj['nama_pengguna'] }}</div>
             </td>
-            <td class="p-4 text-sm font-medium text-dark whitespace-nowrap">
-                {{ $pj['kategori_diajukan'] ?? '-' }}
+            <td class="p-4">
+                <p class="text-sm font-medium text-dark">{{ $pj['email'] ?? '-' }}</p>
+                <p class="text-xs text-gray-500">{{ $pj['no_telp'] ?? '-' }}</p>
+            </td>
+            <td class="p-4 text-sm text-gray-600">
+                {{ $pj['nik'] ?? '-' }}
             </td>
             <td class="p-4">
                 @if (($pj['status'] ?? '') === 'MENUNGGU')
@@ -97,69 +102,127 @@
 </div>
 
 <!-- Modal Detail Pengajuan -->
-<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalDetailContent">
     <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-    <h3 class="font-bold text-dark text-lg">Detail Pengajuan</h3>
-    <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
+        <h3 class="font-bold text-dark text-lg">Detail Pengajuan Verifikasi</h3>
+        <button onclick="closeModal('modalDetail')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
     </div>
+    
     <div class="p-6">
-        <div class="flex items-center justify-between mb-6">
+        <div class="grid grid-cols-2 gap-y-5 gap-x-4 mb-6">
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Tanggal</p>
-                <h4 id="detail_tanggal" class="text-xl font-bold text-dark"></h4>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-1">NAMA PENGGUNA</p>
+                <p id="detail_nama" class="text-sm font-bold text-dark"></p>
             </div>
             <div>
-                <span id="detail_status" class="px-3 py-1 bg-gray-100 text-gray-600 border border-gray-200 rounded-full text-[11px] font-bold inline-block"></span>
-            </div>
-        </div>
-        
-        <div class="space-y-4">
-            <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Nama Pengguna</p>
-                <p id="detail_nama" class="text-sm font-medium text-dark"></p>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-1">STATUS PENDAFTARAN</p>
+                <span id="detail_status" class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide border inline-block uppercase mt-0.5"></span>
             </div>
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Kontak</p>
-                <p id="detail_kontak" class="text-sm font-medium text-dark"></p>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-1">NIK</p>
+                <p id="detail_nik" class="text-sm font-medium text-dark"></p>
             </div>
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Kategori Diajukan</p>
-                <p id="detail_kategori" class="text-sm font-medium text-dark"></p>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-1">EMAIL</p>
+                <p id="detail_email" class="text-sm font-medium text-gray-600"></p>
             </div>
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Surat Lamaran / Keterangan</p>
-                <p id="detail_surat" class="text-sm font-medium text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100"></p>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-1">NO. TELP</p>
+                <p id="detail_telp" class="text-sm font-medium text-gray-600"></p>
+            </div>
+            <div>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-1">WAKTU</p>
+                <p id="detail_waktu" class="text-sm font-medium text-gray-600"></p>
             </div>
         </div>
         
-        <div class="mt-8">
-            <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="w-full py-2.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-200 transition-colors">Tutup</button>
+        <div class="mb-6">
+            <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wide mb-2">DESKRIPSI KEAHLIAN</p>
+            <div id="detail_deskripsi" class="text-sm font-medium text-gray-700 bg-gray-50/50 p-3 rounded-xl border border-gray-100 min-h-[60px]"></div>
         </div>
+        
+        <form id="verifikasiForm" method="POST" action="{{ route('admin.pengajuan.verifikasi') }}">
+            @csrf
+            <input type="hidden" name="id_pengajuan" id="form_id_pengajuan">
+            <input type="hidden" name="action" id="form_action">
+            
+            <div id="action_container" class="border-t border-gray-100 pt-6">
+                <label class="block text-sm font-bold text-dark mb-2">Catatan Verifikasi (Opsional)</label>
+                <textarea name="catatan" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium resize-none mb-4" placeholder="Masukkan alasan ditolak atau catatan tambahan jika diterima..."></textarea>
+                
+                <div class="flex gap-3">
+                    <button type="button" onclick="submitVerifikasi('reject')" class="flex-1 py-3 bg-red-50 text-red-600 border border-red-100 text-sm font-bold rounded-xl hover:bg-red-100 transition-colors">Tolak</button>
+                    <button type="button" onclick="submitVerifikasi('approve')" class="flex-1 py-3 bg-green-500 text-white text-sm font-bold rounded-xl shadow-md hover:bg-green-600 transition-colors cursor-pointer">Terima (Jadikan Freelancer)</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 </div>
 
 <script>
+function openModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
 function openDetailModal(pj) {
-    document.getElementById('detail_tanggal').innerText = pj.tanggal_pengajuan;
     document.getElementById('detail_nama').innerText = pj.nama_pengguna;
-    document.getElementById('detail_kontak').innerText = (pj.email || '-') + ' / ' + (pj.no_telp || '-');
-    document.getElementById('detail_kategori').innerText = pj.kategori_diajukan || '-';
-    document.getElementById('detail_surat').innerText = pj.surat_lamaran || 'Tidak ada keterangan.';
+    document.getElementById('detail_nik').innerText = pj.nik || '-';
+    document.getElementById('detail_telp').innerText = pj.no_telp || '-';
+    document.getElementById('detail_email').innerText = pj.email || '-';
+    
+    // Formatting date loosely for display
+    const dateObj = new Date(pj.tanggal_pengajuan);
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    document.getElementById('detail_waktu').innerText = `${day}-${month}-${year}`;
+    
+    document.getElementById('detail_deskripsi').innerText = pj.deskripsi_keahlian || pj.surat_lamaran || '';
     
     const statusSpan = document.getElementById('detail_status');
     statusSpan.innerText = pj.status;
     
-    // reset classes
-    statusSpan.className = "px-3 py-1 rounded-full text-[11px] font-bold border inline-block ";
+    statusSpan.className = "px-2 py-0.5 rounded text-[11px] font-bold tracking-wide border inline-block uppercase mt-0.5 ";
     if (pj.status === 'MENUNGGU') statusSpan.className += "bg-yellow-50 text-yellow-600 border-yellow-200";
     if (pj.status === 'DITERIMA') statusSpan.className += "bg-green-50 text-green-600 border-green-200";
     if (pj.status === 'DITOLAK') statusSpan.className += "bg-red-50 text-red-600 border-red-200";
     
-    document.getElementById('modalDetail').classList.remove('hidden');
+    if (pj.status === 'MENUNGGU') {
+        document.getElementById('action_container').classList.remove('hidden');
+        document.getElementById('form_id_pengajuan').value = pj.id_pengajuan;
+    } else {
+        document.getElementById('action_container').classList.add('hidden');
+    }
+    
+    openModal('modalDetail');
+}
+
+function submitVerifikasi(action) {
+    document.getElementById('form_action').value = action;
+    const actionText = action === 'approve' ? 'menerima' : 'menolak';
+    if(confirm('Yakin ' + actionText + ' pengajuan ini?')) {
+        document.getElementById('verifikasiForm').submit();
+    }
 }
 </script>
 

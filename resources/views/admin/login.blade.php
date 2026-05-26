@@ -44,6 +44,7 @@
 
         <form method="POST" action="{{ route('login') }}" class="space-y-6">
           @csrf
+          <input type="hidden" name="is_admin" value="1">
           <div>
             <label class="block text-sm font-bold text-dark mb-2">Email Admin</label>
             <div class="relative">

@@ -94,7 +94,7 @@
               <p class="text-sm text-gray-600 whitespace-nowrap">{{ $bk['nama_jasa'] }}</p>
             </td>
             <td class="p-4 text-sm text-gray-500 whitespace-nowrap">
-              {{ $bk['tanggal_booking'] }}
+              {{ date('d-m-Y', strtotime($bk['tanggal_booking'])) }}
             </td>
             <td class="p-4 pr-6 text-right">
               @php

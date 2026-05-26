@@ -9,8 +9,10 @@ use App\Http\Controllers\FreelancerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\CategoryController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/kategori/{id}', [CategoryController::class, 'show'])->name('kategori.show');
 
 // Auth
 Route::get('/login', [AuthController::class, 'login'])->name('login')->middleware('guest');
@@ -44,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
         Route::get('/informasi', [App\Http\Controllers\ProfileController::class, 'informasi'])->name('informasi');
         Route::post('/informasi', [App\Http\Controllers\ProfileController::class, 'updateInformasi']);
+        Route::post('/informasi/hapus-foto', [App\Http\Controllers\ProfileController::class, 'hapusFotoProfil'])->name('informasi.hapus-foto');
         
         Route::get('/kontak', [App\Http\Controllers\ProfileController::class, 'kontak'])->name('kontak');
         Route::post('/kontak', [App\Http\Controllers\ProfileController::class, 'updateKontak']);
@@ -89,6 +92,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/kelola/jasa', [AdminController::class, 'storeJasa'])->name('kelola.jasa');
         Route::put('/kelola/jasa/{id}', [AdminController::class, 'updateJasa'])->name('kelola.jasa.update');
         Route::delete('/kelola/jasa/{id}', [AdminController::class, 'destroyJasa'])->name('kelola.jasa.destroy');
+        Route::post('/kelola/satuan', [AdminController::class, 'storeSatuan'])->name('kelola.satuan');
+        Route::put('/kelola/satuan/{id}', [AdminController::class, 'updateSatuan'])->name('kelola.satuan.update');
+        Route::delete('/kelola/satuan/{id}', [AdminController::class, 'destroySatuan'])->name('kelola.satuan.destroy');
     });
 });
 
