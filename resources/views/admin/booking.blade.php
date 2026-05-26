@@ -83,7 +83,7 @@
             </td>
             <td class="p-4 text-sm font-semibold text-accent whitespace-nowrap">{{ $bk['nama_freelancer'] }}</td>
             <td class="p-4 text-sm text-gray-600">{{ $bk['nama_jasa'] }}</td>
-            <td class="p-4 text-sm text-gray-500 whitespace-nowrap">{{ $bk['tanggal_booking'] }}</td>
+            <td class="p-4 text-sm text-gray-500 whitespace-nowrap">{{ date('d-m-Y', strtotime($bk['tanggal_booking'])) }}</td>
             <td class="p-4">
                 @php
                 $statusBadge = 'bg-gray-100 text-gray-600 border-gray-200';
@@ -119,11 +119,11 @@
 </div>
 
 <!-- Modal Detail Booking -->
-<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div id="modalDetail" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalDetailContent">
     <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
     <h3 class="font-bold text-dark text-lg">Detail Booking</h3>
-    <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
+    <button onclick="closeModal('modalDetail')" class="p-2 text-gray-400 hover:text-dark hover:bg-gray-100 rounded-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
     </div>
@@ -142,6 +142,7 @@
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Klien (Pemesan)</p>
                 <p id="detail_client" class="text-sm font-medium text-dark"></p>
+                <p id="detail_client_contact" class="text-xs text-gray-500 mt-0.5"></p>
             </div>
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Freelancer</p>
@@ -155,22 +156,59 @@
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Tanggal Booking</p>
                 <p id="detail_tanggal" class="text-sm font-medium text-dark"></p>
             </div>
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Alamat Booking</p>
+                <p id="detail_alamat" class="text-sm font-medium text-dark"></p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Catatan Booking</p>
+                <p id="detail_catatan" class="text-sm font-medium text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100"></p>
+            </div>
         </div>
         
         <div class="mt-8">
-            <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="w-full py-2.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-200 transition-colors">Tutup</button>
+            <button onclick="closeModal('modalDetail')" class="w-full py-2.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-200 transition-colors">Tutup</button>
         </div>
     </div>
 </div>
 </div>
 
 <script>
+function openModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    const content = document.getElementById(id + 'Content');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
 function openDetailModal(bk) {
     document.getElementById('detail_id').innerText = bk.id_booking;
     document.getElementById('detail_client').innerText = bk.nama_client;
+    document.getElementById('detail_client_contact').innerText = (bk.client_email || '-') + ' / ' + (bk.client_phone || '-');
     document.getElementById('detail_freelancer').innerText = bk.nama_freelancer;
     document.getElementById('detail_jasa').innerText = bk.nama_jasa;
-    document.getElementById('detail_tanggal').innerText = bk.tanggal_booking;
+    
+    const dateObj = new Date(bk.tanggal_booking);
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    document.getElementById('detail_tanggal').innerText = `${day}-${month}-${year}`;
+    
+    document.getElementById('detail_alamat').innerText = bk.alamat_booking || '-';
+    document.getElementById('detail_catatan').innerText = bk.catatan_booking || '-';
     
     const statusSpan = document.getElementById('detail_status');
     statusSpan.innerText = bk.status_booking;
@@ -182,7 +220,7 @@ function openDetailModal(bk) {
     if (bk.status_booking === 'SELESAI') statusSpan.className += "bg-green-50 text-green-600 border-green-200";
     if (bk.status_booking === 'DIBATALKAN') statusSpan.className += "bg-red-50 text-red-600 border-red-200";
     
-    document.getElementById('modalDetail').classList.remove('hidden');
+    openModal('modalDetail');
 }
 </script>
 

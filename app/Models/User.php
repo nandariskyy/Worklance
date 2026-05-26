@@ -35,4 +35,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class, 'id_pengguna', 'id_pengguna');
     }
+
+    public function kabupaten()
+    {
+        return $this->belongsTo(Kabupaten::class, 'id_kabupaten', 'id_kabupaten');
+    }
 }

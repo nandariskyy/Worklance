@@ -3,7 +3,7 @@
 @section('title', 'Kelola Jasa | WorkLance')
 
 @section('content')
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full relative z-0">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grow w-full relative z-0">
     <!-- Breadcrumb -->
     <nav class="flex items-center text-sm gap-2 font-medium mb-8">
       <a href="{{ url('/') }}" class="text-gray-500 hover:text-accent transition-colors">Beranda</a>
@@ -41,14 +41,14 @@
 
     @if (session('success'))
     <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
-      <svg class="w-5 h-5 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <svg class="w-5 h-5 shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       {{ session('success') }}
     </div>
     @endif
     
     @if (session('error'))
     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
-      <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       {{ session('error') }}
     </div>
     @endif
@@ -57,7 +57,7 @@
     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex flex-col gap-2 shadow-sm">
       @foreach ($errors->all() as $err)
       <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         {{ $err }}
       </div>
       @endforeach
@@ -78,11 +78,11 @@
                <div class="w-16 h-16 shrink-0 bg-primary/10 rounded-xl flex items-center justify-center text-primary/70">
                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                </div>
-               <div class="flex-grow">
+               <div class="grow">
                    <div class="flex items-center gap-3 mb-2">
-                     <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 rounded-md">Kategori Keahlian</span>
+                     <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 rounded-md">{{ $cat['nama_kategori'] }}</span>
                    </div>
-                   <h2 class="text-2xl font-bold text-dark mb-1">{{ $cat['nama_kategori'] }}</h2>
+                   <h2 class="text-2xl font-bold text-dark mb-1">{{ $cat['namajasa'] ?: 'Tidak ada namajasa.' }}</h2>
                    <p class="text-sm font-medium text-accent mb-4">{{ $cat['jasa_names'] }}</p>
                    
                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 leading-relaxed text-sm text-gray-600 line-clamp-2">
@@ -92,7 +92,7 @@
                
                <div class="md:w-56 shrink-0 w-full flex flex-row md:flex-col justify-between md:justify-center items-center md:items-end border-t md:border-t-0 md:border-l border-gray-100 pt-5 md:pt-0 pl-0 md:pl-6 gap-3">
                    <div class="text-left md:text-right">
-                       <p class="text-xs font-bold text-gray-400 mb-0.5 uppercase tracking-wide">Harga Dasar</p>
+                       <p class="text-xs font-bold text-gray-400 mb-0.5 uppercase tracking-wide">Harga</p>
                        <p class="text-xl font-black text-dark">Rp {{ number_format($cat['tarif'], 0, ',', '.') }}</p>
                        <p class="text-xs text-gray-400 mt-0.5">/ {{ $cat['nama_satuan'] ?: 'Pesanan' }}</p>
                    </div>
@@ -102,7 +102,9 @@
                            'id_kategori' => $cat['id_kategori'],
                            'tarif' => $cat['tarif'],
                            'id_satuan' => $cat['id_satuan'],
+                           'namajasa' => $cat['namajasa'],
                            'deskripsi' => $cat['deskripsi'],
+                           'gambar' => $cat['gambar'] ?? [],
                            'arr_jasa' => json_decode($cat['jasa_ids_json'], true)
                        ]) }})" class="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200/50" title="Edit Layanan">
                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -124,7 +126,7 @@
   </div>
 
   <!-- MODAL: ADD/EDIT FORM -->
-  <div id="serviceModal" class="fixed inset-0 z-[100] hidden">
+  <div id="serviceModal" class="fixed inset-0 z-100 hidden">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-dark/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
       
@@ -149,7 +151,7 @@
               </div>
 
               <!-- Form Body -->
-              <form method="POST" action="{{ route('freelancer.kelola') }}" class="p-6 md:p-10 space-y-8 bg-white relative">
+              <form method="POST" action="{{ route('freelancer.kelola') }}" enctype="multipart/form-data" class="p-6 md:p-10 space-y-8 bg-white relative">
                   @csrf
                   <input type="hidden" name="action" value="save">
                   
@@ -172,7 +174,7 @@
                     <div>
                       <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
                         <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Harga Dasar / Min Order <span class="text-red-500">*</span>
+                        Harga <span class="text-red-500">*</span>
                       </label>
                       <div class="flex shadow-sm rounded-xl overflow-hidden">
                         <span class="inline-flex items-center px-4 border border-r-0 border-gray-200 bg-gray-100 text-gray-600 font-bold text-sm">Rp</span>
@@ -188,32 +190,70 @@
                     </div>
                   </div>
 
-                  <!-- Checklist Jasa -->
+                  <!-- Checklist Jasa (Hanya Pilih 1) -->
                   <div id="jasaContainerWrapper" class="pt-2 hidden">
-                    <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
-                      <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                      Tandai Jasa yang Anda Sediakan <span class="text-red-500">*</span>
-                    </label>
-                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-                      <div id="jasaCheckboxList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        @foreach ($jasaList as $js)
-                        <label class="jasa-item flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-accent/40 transition-all" data-kategori="{{ $js['id_kategori'] }}">
-                          <input type="checkbox" name="jasa[]" value="{{ $js['id_jasa'] }}" class="jasa-checkbox w-5 h-5 text-accent rounded border-gray-300 focus:ring-accent transition-colors accent-accent">
-                          <span class="text-sm font-medium text-gray-700">{{ $js['nama_jasa'] }}</span>
-                        </label>
-                        @endforeach
+                      <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                          <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                          Pilih Jasa yang Anda Sediakan <span class="text-red-500">*</span>
+                      </label>
+                      <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                          <div id="jasaCheckboxList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                              @foreach ($jasaList as $js)
+                              <!-- Perubahan: Menggunakan type="radio" dan name="jasa" (tanpa []) -->
+                              <label class="jasa-item flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-accent/40 transition-all" data-kategori="{{ $js['id_kategori'] }}">
+                                  <input type="radio" name="jasa" value="{{ $js['id_jasa'] }}" class="jasa-radio w-5 h-5 text-accent rounded-full border-gray-300 focus:ring-accent transition-colors accent-accent">
+                                  <span class="text-sm font-medium text-gray-700">{{ $js['nama_jasa'] }}</span>
+                              </label>
+                              @endforeach
+                          </div>
+                          <p id="noJasaMsg" class="text-sm text-gray-500 hidden py-4 text-center">Tidak ada sub-jasa di kategori ini.</p>
                       </div>
-                      <p id="noJasaMsg" class="text-sm text-gray-500 hidden py-4 text-center">Tidak ada sub-jasa di kategori ini.</p>
-                    </div>
                   </div>
 
+                  <!-- Nama Jasa -->
+                  <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                      <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      Nama Jasa
+                    </label>
+                    <textarea name="namajasa" id="inputNamaJasa" rows="6" placeholder="Masukkan nama jasa yang ditawarkan..." required class="w-full border border-gray-200 rounded-2xl px-5 py-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none transition-colors"></textarea>
+                  </div>
+                  
                   <!-- Deskripsi -->
                   <div>
                     <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
                       <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                      Deskripsi Profil
+                      Deskripsi Jasa
                     </label>
                     <textarea name="deskripsi" id="inputDeskripsi" rows="6" placeholder="Beri gambaran detail apa saja yang Anda kerjakan di kategori ini, prosedur kerja, dll..." required class="w-full border border-gray-200 rounded-2xl px-5 py-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none transition-colors"></textarea>
+                  </div>
+
+                  <!-- Portofolio Image Upload -->
+                  <div class="portofolio-container mt-4">
+                      <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                          <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                          Upload Portofolio <span class="text-red-500">*</span>
+                          <span class="text-xs font-normal text-gray-500">(Min 1, Max 5 gambar)</span>
+                      </label>
+                      
+                      <div class="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-accent transition-colors" id="dropZone">
+                          <input type="file" name="portofolio_images[]" id="portofolioInput" class="hidden" accept="image/*" multiple>
+                          
+                          <label for="portofolioInput" class="cursor-pointer">
+                              <div class="flex flex-col items-center">
+                                  <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                  <p class="text-sm text-gray-600 mb-1">Klik atau drag & drop gambar di sini</p>
+                                  <p class="text-xs text-gray-500">PNG, JPG, JPEG (Max 2MB per gambar)</p>
+                              </div>
+                          </label>
+                          
+                          <!-- Preview Container -->
+                          <div id="previewContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4"></div>
+                          
+                          <p id="imageCountMsg" class="text-xs text-gray-500 mt-2">0/5 gambar dipilih</p>
+                      </div>
+                      
+                      <p class="text-xs text-red-500 mt-1 hidden" id="imageErrorMsg">Jumlah gambar harus antara 1 dan 5.</p>
                   </div>
 
                   <div class="pt-6 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-gray-100">
@@ -236,17 +276,20 @@
     const selKategori = document.getElementById('selectKategori');
     const inputTarif = document.getElementById('inputTarif');
     const selectSatuan = document.getElementById('selectSatuan');
+    const inputNamaJasa = document.getElementById('inputNamaJasa');
     const inputDeskripsi = document.getElementById('inputDeskripsi');
     const containerWrapper = document.getElementById('jasaContainerWrapper');
     const items = document.querySelectorAll('.jasa-item');
-    const checkboxes = document.querySelectorAll('.jasa-checkbox');
+    const checkboxes = document.querySelectorAll('.jasa-radio');
     const noJasaMsg = document.getElementById('noJasaMsg');
 
+    
     function resetForm() {
         modalTitle.innerText = "Tambah Layanan Baru";
         selKategori.value = '';
         inputTarif.value = '';
         selectSatuan.value = '';
+        inputNamaJasa.value = '';
         inputDeskripsi.value = '';
         selKategori.disabled = false;
         updateCheckboxesVis();
@@ -316,6 +359,7 @@
 
         inputTarif.value = data.tarif;
         selectSatuan.value = data.id_satuan;
+        inputNamaJasa.value = data.namajasa;
         inputDeskripsi.value = data.deskripsi;
         
         updateCheckboxesVis();
@@ -329,6 +373,24 @@
             });
         }
         
+        previewContainer.innerHTML = '';
+
+        if(data.gambar && data.gambar.length > 0){
+            data.gambar.forEach((img) => {
+                const div = document.createElement('div');
+
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img 
+                        src="/storage/${img}" 
+                        class="w-full h-24 object-cover rounded-lg border border-gray-200"
+                    >
+                `;
+                previewContainer.appendChild(div);
+            });
+            imageCountMsg.textContent = `${data.gambar.length}/5 gambar dipilih`;
+        }
+
         modal.classList.remove('hidden');
         document.body.classList.add('modal-open');
     }
@@ -339,4 +401,87 @@
         Array.from(selKategori.options).forEach(opt => { opt.disabled = false; });
     }
   </script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const portofolioInput = document.getElementById('portofolioInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const imageCountMsg = document.getElementById('imageCountMsg');
+    const imageErrorMsg = document.getElementById('imageErrorMsg');
+    const MAX_IMAGES = 5;
+    const MIN_IMAGES = 1;
+    
+    let selectedFiles = [];
+
+    portofolioInput.addEventListener('change', function(e) {
+        handleFiles(Array.from(e.target.files));
+    });
+
+    function handleFiles(files) {
+        if (selectedFiles.length + files.length > MAX_IMAGES) {
+            showError(`Maksimal ${MAX_IMAGES} gambar.`);
+            return;
+        }
+
+        files.forEach(file => {
+            if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
+                showError('Hanya format PNG, JPG, JPEG yang diperbolehkan.');
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showError('Ukuran maksimal per gambar adalah 2MB.');
+                return;
+            }
+
+            selectedFiles.push(file);
+        });
+
+        renderPreviews();
+    }
+
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-24 object-cover rounded-lg border border-gray-200">
+                    <button type="button" onclick="removeImage(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                `;
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        updateCountMessage();
+        updateInputFile();
+    }
+
+    window.removeImage = function(index) {
+        selectedFiles.splice(index, 1);
+        renderPreviews();
+    };
+
+    function updateInputFile() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        portofolioInput.files = dataTransfer.files;
+    }
+
+    function updateCountMessage() {
+        imageCountMsg.textContent = `${selectedFiles.length}/${MAX_IMAGES} gambar dipilih`;
+        imageCountMsg.className = selectedFiles.length < MIN_IMAGES ? 'text-xs text-red-500 mt-2' : 'text-xs text-gray-500 mt-2';
+    }
+
+    function showError(message) {
+        imageErrorMsg.textContent = message;
+        imageErrorMsg.classList.remove('hidden');
+        setTimeout(() => imageErrorMsg.classList.add('hidden'), 3000);
+    }
+});
+</script>
 @endsection

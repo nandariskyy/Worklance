@@ -105,20 +105,24 @@ class AdminController extends Controller
     public function freelancer(Request $request)
     {
         $query = DB::table('layanan')
-            ->join('pengguna', 'layanan.id_pengguna', '=', 'pengguna.id_pengguna')
-            ->join('jasa', 'layanan.id_jasa', '=', 'jasa.id_jasa')
-            ->join('kategori', 'jasa.id_kategori', '=', 'kategori.id_kategori')
+            ->leftJoin('pengguna', 'layanan.id_pengguna', '=', 'pengguna.id_pengguna')
+            ->leftJoin('jasa', 'layanan.id_jasa', '=', 'jasa.id_jasa')
+            ->leftJoin('kategori', 'jasa.id_kategori', '=', 'kategori.id_kategori')
+            ->leftJoin('satuan', 'layanan.id_satuan', '=', 'satuan.id_satuan')
             ->select(
-                'pengguna.id_pengguna', 
+                'layanan.*', 
                 'pengguna.nama_pengguna', 
                 'pengguna.email', 
                 'pengguna.no_telp', 
-                DB::raw('GROUP_CONCAT(DISTINCT kategori.nama_kategori SEPARATOR ", ") as kategori')
+                'kategori.nama_kategori as kategori',
+                'jasa.nama_jasa as jasa',
+                'satuan.nama_satuan as satuan'
             )
-            ->groupBy('pengguna.id_pengguna', 'pengguna.nama_pengguna', 'pengguna.email', 'pengguna.no_telp');
+            ->where('pengguna.id_role', 3)
+            ->orderBy('layanan.id_layanan', 'desc');
 
         if ($request->has('kategori')) {
-            $query->having('kategori', 'LIKE', '%' . $request->kategori . '%');
+            $query->where('kategori.id_kategori', $request->kategori);
         }
 
         $freelancerList = json_decode(json_encode($query->get()), true);
@@ -250,24 +254,38 @@ class AdminController extends Controller
 
     public function kelola()
     {
-        $kategoriList = Kategori::all()->toArray();
-        
+        $kategoriListQuery = Kategori::withCount('jasas')->get();
+        $kategoriList = [];
+        foreach ($kategoriListQuery as $kat) {
+            $kategoriList[] = [
+                'id_kategori' => $kat->id_kategori,
+                'nama_kategori' => $kat->nama_kategori,
+                'deskripsi' => $kat->deskripsi ?? '',
+                'jumlah_jasa' => $kat->jasas_count
+            ];
+        }
+
         $jasaListQuery = Jasa::with('kategori')->get();
         $jasaList = [];
         foreach ($jasaListQuery as $j) {
             $jasaList[] = [
                 'id_jasa' => $j->id_jasa,
                 'nama_jasa' => $j->nama_jasa,
-                'kategori' => $j->kategori ? $j->kategori->nama_kategori : '-'
+                'kategori' => $j->kategori ? $j->kategori->nama_kategori : '-',
+                'id_kategori' => $j->id_kategori,
+                'deskripsi' => $j->deskripsi ?? ''
             ];
         }
+
+        $satuanList = \App\Models\Satuan::all()->toArray();
 
         $data = [
             'currentPage' => 'kelola',
             'adminNama' => 'Admin WorkLance',
             'adminInitials' => 'AW',
             'kategoriList' => $kategoriList,
-            'jasaList' => $jasaList
+            'jasaList' => $jasaList,
+            'satuanList' => $satuanList
         ];
 
         return view('admin.kelola', $data);
@@ -351,6 +369,44 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Jasa berhasil diperbarui.');
+    }
+
+    public function storeSatuan(Request $request)
+    {
+        $request->validate([
+            'nama_satuan' => 'required|string|max:50',
+            'deskripsi' => 'nullable|string'
+        ]);
+
+        \App\Models\Satuan::create([
+            'nama_satuan' => $request->nama_satuan,
+            'deskripsi' => $request->deskripsi
+        ]);
+
+        return redirect()->back()->with('success', 'Satuan baru berhasil ditambahkan.');
+    }
+
+    public function destroySatuan($id)
+    {
+        $satuan = \App\Models\Satuan::findOrFail($id);
+        $satuan->delete();
+        return redirect()->back()->with('success', 'Satuan berhasil dihapus.');
+    }
+
+    public function updateSatuan(Request $request, $id)
+    {
+        $satuan = \App\Models\Satuan::findOrFail($id);
+        $request->validate([
+            'nama_satuan' => 'required|string|max:50',
+            'deskripsi' => 'nullable|string'
+        ]);
+
+        $satuan->update([
+            'nama_satuan' => $request->nama_satuan,
+            'deskripsi' => $request->deskripsi
+        ]);
+
+        return redirect()->back()->with('success', 'Satuan berhasil diperbarui.');
     }
 
     public function storePengguna(Request $request)

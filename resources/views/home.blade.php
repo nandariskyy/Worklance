@@ -136,7 +136,7 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         @foreach ($kategoriList as $kat)
-        <a href="?search={{ urlencode($kat['nama_kategori']) }}" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center group hover:shadow-xl hover:-translate-y-1 hover:border-primary/20 transition-all duration-300 flex flex-col relative overflow-hidden">
+        <a href="{{ route('kategori.show', $kat['id_kategori']) }}" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center group hover:shadow-xl hover:-translate-y-1 hover:border-primary/20 transition-all duration-300 flex flex-col relative overflow-hidden">
           <div class="relative z-10 transition-transform duration-500 group-hover:-translate-y-2">
             <div class="w-14 h-14 mx-auto bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
               <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $kategoriIcons[$kat['id_kategori']] ?? '' !!}</svg>
@@ -243,7 +243,7 @@
           <h2 class="text-4xl md:text-5xl font-bold mb-6">Punya keahlian yang bisa dijual?</h2>
           <p class="text-xl text-blue-50 mb-10 max-w-2xl mx-auto">Bergabung dengan ribuan freelancer sukses lainnya di sekitarmu. Mulai tawarkan jasamu tanpa biaya langganan bulanan.</p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ route('freelancer.mulai') }}" class="bg-accent hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">Mulai Jadi Freelancer</a>
+            <a href="{{ route('freelancer.daftar') }}" class="bg-accent hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">Mulai Jadi Freelancer</a>
             <a href="{{ route('freelancer.mulai') }}" class="bg-white/20 hover:bg-white text-white hover:text-dark px-8 py-4 rounded-xl font-bold text-lg transition-all backdrop-blur-sm border border-white/30">Pelajari Lebih Lanjut</a>
           </div>
         </div>

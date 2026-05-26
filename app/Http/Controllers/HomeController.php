@@ -26,10 +26,13 @@ class HomeController extends Controller
         // 3. Ambil freelancer unggulan (Layanan yang ada ratingnya)
         // Karena rating ada di ulasan -> booking -> layanan
         // Untuk saat ini kita ambil semua layanan dengan informasi avg_rating jika ada
-        $layanans = Layanan::with(['pengguna', 'jasa.kategori'])
+        $layanans = Layanan::with(['pengguna.kabupaten', 'jasa.kategori'])
+            ->whereHas('pengguna', function($q) {
+                $q->where('id_role', '!=', 1);
+            })
             ->get();
             
-        $freelancerUnggulan = [];
+        $freelancersAll = [];
         foreach ($layanans as $layanan) {
             // Hitung rata-rata rating
             $avgRating = DB::table('ulasan')
@@ -37,23 +40,36 @@ class HomeController extends Controller
                 ->where('booking.id_layanan', $layanan->id_layanan)
                 ->avg('ulasan.rating');
                 
-            $freelancerUnggulan[] = [
+            $freelancersAll[] = [
                 'id_layanan' => $layanan->id_layanan,
                 'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : 'Tanpa Nama',
                 'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
+                'nama_kota' => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '',
                 'nama_kategori' => $layanan->jasa && $layanan->jasa->kategori ? $layanan->jasa->kategori->nama_kategori : '-',
                 'nama_jasa' => $layanan->jasa ? $layanan->jasa->nama_jasa : '-',
                 'avg_rating' => $avgRating ? round($avgRating, 1) : 0
             ];
         }
 
-        // Urutkan berdasarkan rating terbaik (descending) dan ambil maksimal 4
-        usort($freelancerUnggulan, function($a, $b) {
-            return $b['avg_rating'] <=> $a['avg_rating'];
-        });
-        $freelancerUnggulan = array_slice($freelancerUnggulan, 0, 4);
+        // 5. Pencarian
+        $search = $request->query('search', '');
+        $hasilCari = [];
 
-        // 4. Kategori Icons (Tetap statis karena icon SVG lebih mudah disimpan di controller atau config)
+        if ($search !== '') {
+            $hasilCari = array_filter($freelancersAll, function($fl) use ($search) {
+                return stripos($fl['nama_pengguna'], $search) !== false || 
+                       stripos($fl['nama_jasa'], $search) !== false || 
+                       stripos($fl['nama_kategori'], $search) !== false ||
+                       stripos($fl['nama_kota'], $search) !== false ||
+                       stripos($fl['alamat_lengkap'], $search) !== false;
+            });
+            // Urutkan hasil pencarian
+            usort($hasilCari, function($a, $b) {
+                return $b['avg_rating'] <=> $a['avg_rating'];
+            });
+        }
+
+        // 4. Kategori Icons (Tetap statis)
         $kategoriIcons = [
             1 => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>',
             2 => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>',
@@ -65,17 +81,11 @@ class HomeController extends Controller
             8 => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>',
         ];
 
-        // 5. Pencarian
-        $search = $request->query('search', '');
-        $hasilCari = [];
-
-        if ($search !== '') {
-            $hasilCari = array_filter($freelancerUnggulan, function($fl) use ($search) {
-                return stripos($fl['nama_pengguna'], $search) !== false || 
-                       stripos($fl['nama_jasa'], $search) !== false || 
-                       stripos($fl['nama_kategori'], $search) !== false;
-            });
-        }
+        // Freelancer Unggulan untuk beranda (top 4)
+        usort($freelancersAll, function($a, $b) {
+            return $b['avg_rating'] <=> $a['avg_rating'];
+        });
+        $freelancerUnggulan = array_slice($freelancersAll, 0, 4);
 
         return view('home', compact('kategoriList', 'jasaPerKategori', 'freelancerUnggulan', 'kategoriIcons', 'search', 'hasilCari'));
     }
