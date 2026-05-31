@@ -168,7 +168,7 @@ class FreelancerController extends Controller
         $profileData = [
             'id_layanan'    => $layanan->id_layanan,
             'id_pengguna'   => $id_pengguna,
-            'nama_jasa'     => $layanan->jasa->nama_jasa ?? '-',
+            'nama_jasa'     => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa->nama_jasa ?? '-'),
             'nama_pengguna' => $layanan->pengguna->nama_pengguna ?? '-',
             'no_telp'       => $layanan->pengguna->no_telp ?? '-',
             'alamat_lengkap'=> $layanan->pengguna->alamat_lengkap ?? '-',
@@ -184,7 +184,7 @@ class FreelancerController extends Controller
             ->map(function($l) {
                 return [
                     'id_layanan'  => $l->id_layanan,
-                    'nama_jasa'   => $l->jasa->nama_jasa ?? '-',
+                    'nama_jasa'   => !empty($l->namajasa) ? $l->namajasa : ($l->jasa->nama_jasa ?? '-'),
                     'tarif'       => $l->tarif,
                     'nama_satuan' => $l->satuan->nama_satuan ?? 'proyek',
                     'avg_rating'  => 5.0,

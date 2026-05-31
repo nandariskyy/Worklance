@@ -24,7 +24,7 @@ class ServiceController extends Controller
             'tarif' => $layanan->tarif,
             'deskripsi' => $layanan->deskripsi,
             'id_layanan' => $layanan->id_layanan,
-            'nama_jasa' => $layanan->jasa ? $layanan->jasa->nama_jasa : '-'
+            'nama_jasa' => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa ? $layanan->jasa->nama_jasa : '-')
         ];
 
         // Offered Jasa List (Jasa lain yang ditawarkan oleh user yang sama)

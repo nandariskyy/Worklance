@@ -26,7 +26,7 @@ class HomeController extends Controller
         // 3. Ambil freelancer unggulan (Layanan yang ada ratingnya)
         // Karena rating ada di ulasan -> booking -> layanan
         // Untuk saat ini kita ambil semua layanan dengan informasi avg_rating jika ada
-        $layanans = Layanan::with(['pengguna.kabupaten', 'jasa.kategori'])
+        $layanans = Layanan::with(['pengguna.kabupaten', 'jasa.kategori', 'satuan'])
             ->whereHas('pengguna', function($q) {
                 $q->where('id_role', '!=', 1);
             })
@@ -46,8 +46,10 @@ class HomeController extends Controller
                 'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
                 'nama_kota' => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '',
                 'nama_kategori' => $layanan->jasa && $layanan->jasa->kategori ? $layanan->jasa->kategori->nama_kategori : '-',
-                'nama_jasa' => $layanan->jasa ? $layanan->jasa->nama_jasa : '-',
-                'avg_rating' => $avgRating ? round($avgRating, 1) : 0
+                'nama_jasa' => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa ? $layanan->jasa->nama_jasa : '-'),
+                'avg_rating'  => $avgRating ? round($avgRating, 1) : 0,
+                'tarif'       => $layanan->tarif ?? 0,
+                'nama_satuan' => $layanan->satuan ? $layanan->satuan->nama_satuan : 'proyek',
             ];
         }
 

@@ -25,7 +25,7 @@ class CategoryController extends Controller
         $listJasa = Jasa::where('id_kategori', $id)->orderBy('nama_jasa', 'asc')->get();
 
         // Ambil semua layanan dalam kategori ini (dan kecualikan admin)
-        $query = Layanan::with(['pengguna.kabupaten', 'jasa'])
+        $query = Layanan::with(['pengguna.kabupaten', 'jasa', 'satuan'])
             ->whereHas('pengguna', function($q) {
                 $q->where('id_role', '!=', 1);
             })
@@ -54,12 +54,15 @@ class CategoryController extends Controller
                 ->avg('ulasan.rating');
 
             $freelancers[] = [
-                'id_layanan' => $layanan->id_layanan,
-                'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : 'Tanpa Nama',
-                'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
-                'nama_kota' => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '-',
-                'nama_jasa' => $layanan->jasa ? $layanan->jasa->nama_jasa : '-',
-                'avg_rating' => $avgRating ? round($avgRating, 1) : 0
+            'id_layanan'    => $layanan->id_layanan,
+            'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : 'Tanpa Nama',
+            'alamat_lengkap'=> $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
+            'nama_kota'     => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '-',
+            'nama_jasa' => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa ? $layanan->jasa->nama_jasa : '-'),
+            'avg_rating'    => $avgRating ? round($avgRating, 1) : 0,
+            'tarif'         => $layanan->tarif ?? 0,
+            'nama_satuan'   => $layanan->satuan ? $layanan->satuan->nama_satuan : 'proyek',
+
             ];
         }
 
