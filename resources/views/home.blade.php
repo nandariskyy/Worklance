@@ -21,7 +21,7 @@
       @else
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         @foreach ($hasilCari as $idx => $fl)
-        <div class="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group hover:-translate-y-1 max-w-xs mx-auto">
+        <div class="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group hover:-translate-y-1">
            <div class="flex-col h-full">
         <!-- Gambar Jasa -->
           <div class="relative">
