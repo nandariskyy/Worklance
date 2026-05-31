@@ -75,9 +75,31 @@
         @else
             @foreach($myCategories as $cat)
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row gap-6 items-start md:items-center hover:shadow-md transition-all">
-               <div class="w-16 h-16 shrink-0 bg-primary/10 rounded-xl flex items-center justify-center text-primary/70">
-                   <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-               </div>
+               <div class="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-gray-200">
+                  @if(!empty($cat['gambar']) && count($cat['gambar']) > 0)
+
+                      <img
+                          src="{{ asset('storage/'.$cat['gambar'][0]['file_gambar']) }}"
+                          alt="Portofolio"
+                          class="w-full h-full object-cover"
+                      >
+
+                  @else
+
+                      <div class="w-full h-full bg-primary/10 flex items-center justify-center text-primary/70">
+                          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="1.5"
+                                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                              </path>
+                          </svg>
+                      </div>
+
+                  @endif
+
+              </div>
                <div class="grow">
                    <div class="flex items-center gap-3 mb-2">
                      <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 rounded-md">{{ $cat['nama_kategori'] }}</span>
@@ -99,6 +121,7 @@
                    
                    <div class="flex gap-2">
                        <button onclick="openModalEdit({{ json_encode([
+                           'id_layanan' => $cat['id_layanan'],
                            'id_kategori' => $cat['id_kategori'],
                            'tarif' => $cat['tarif'],
                            'id_satuan' => $cat['id_satuan'],
@@ -109,10 +132,10 @@
                        ]) }})" class="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200/50" title="Edit Layanan">
                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                        </button>
-                       <form method="POST" action="{{ route('freelancer.kelola') }}" onsubmit="return confirmAction(event, 'Apakah Anda yakin ingin menghapus seluruh layanan dalam kategori ini?');">
+                       <form method="POST" action="{{ route('freelancer.kelola') }}" onsubmit="return confirmAction(event, 'Apakah Anda yakin ingin menghapus layanan ini?');">
                            @csrf
                            <input type="hidden" name="action" value="delete">
-                           <input type="hidden" name="id_kategori" value="{{ $cat['id_kategori'] }}">
+                           <input type="hidden" name="id_layanan" value="{{ $cat['id_layanan'] }}">
                            <button type="submit" class="p-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200/50" title="Hapus Layanan">
                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                            </button>
@@ -154,7 +177,10 @@
               <form method="POST" action="{{ route('freelancer.kelola') }}" enctype="multipart/form-data" class="p-6 md:p-10 space-y-8 bg-white relative">
                   @csrf
                   <input type="hidden" name="action" value="save">
-                  
+                      <input type="hidden" name="action" value="save">
+                      <input type="hidden" name="id_layanan" id="inputIdLayanan">
+                      <input type="hidden" name="deleted_images" id="deletedImages">
+
                   <!-- Kategori & Harga -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
@@ -282,7 +308,8 @@
     const items = document.querySelectorAll('.jasa-item');
     const checkboxes = document.querySelectorAll('.jasa-radio');
     const noJasaMsg = document.getElementById('noJasaMsg');
-
+    
+    let deletedImages = [];
     
     function resetForm() {
         modalTitle.innerText = "Tambah Layanan Baru";
@@ -294,6 +321,21 @@
         selKategori.disabled = false;
         updateCheckboxesVis();
         checkboxes.forEach(chk => { chk.checked = false; triggerCheckboxStyling(chk); });
+
+        // reset preview gambar
+        previewContainer.innerHTML = '';
+
+        // reset counter gambar
+        imageCountMsg.textContent = '0/5 gambar dipilih';
+
+        // reset daftar gambar yang akan dihapus
+        deletedImages = [];
+        const deletedInput = document.getElementById('deletedImages');
+        if (deletedInput) {deletedInput.value = '';}
+
+        // reset id layanan
+        const layananInput = document.getElementById('inputIdLayanan');
+        if (layananInput) {layananInput.value = '';}
     }
 
     function triggerCheckboxStyling(input) {
@@ -352,6 +394,9 @@
         resetForm();
         modalTitle.innerText = "Edit Kategori Layanan";
         selKategori.value = data.id_kategori;
+
+        document.getElementById('inputIdLayanan').value =
+           data.id_layanan;
         
         Array.from(selKategori.options).forEach(opt => { 
             if (opt.value && opt.value != data.id_kategori) opt.disabled = true; 
@@ -381,10 +426,18 @@
 
                 div.className = 'relative group';
                 div.innerHTML = `
-                    <img 
-                        src="/storage/${img}" 
-                        class="w-full h-24 object-cover rounded-lg border border-gray-200"
-                    >
+                  <img
+                      src="/storage/${img.file_gambar}"
+                      class="w-full h-24 object-cover rounded-lg border border-gray-200"
+                  >
+
+                  <button
+                      type="button"
+                      class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6"
+                      onclick="removeOldImage(${img.id_gambar}, this)"
+                  >
+                      ×
+                  </button>
                 `;
                 previewContainer.appendChild(div);
             });
@@ -399,6 +452,13 @@
         modal.classList.add('hidden');
         document.body.classList.remove('modal-open');
         Array.from(selKategori.options).forEach(opt => { opt.disabled = false; });
+    }
+
+    function removeOldImage(idGambar, button) {
+      deletedImages.push(idGambar);
+      document.getElementById('deletedImages').value =
+          JSON.stringify(deletedImages);
+      button.closest('.group').remove();
     }
   </script>
 

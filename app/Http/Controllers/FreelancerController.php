@@ -15,6 +15,7 @@ use App\Models\Desa;
 use App\Models\PengajuanFreelancer;
 use App\Models\Booking;
 use App\Models\GambarLayanan;
+use Illuminate\Support\Facades\Storage;
 
 class FreelancerController extends Controller
 {
@@ -113,50 +114,44 @@ class FreelancerController extends Controller
         $layanans = Layanan::with(['jasa.kategori', 'satuan', 'gambarLayanan'])->where('id_pengguna', $id_pengguna)->get();
 
         $myCategories = [];
-        $grouped = [];
 
         foreach ($layanans as $layanan) {
-            if (!$layanan->jasa || !$layanan->jasa->kategori) continue;
 
-            $id_kategori = $layanan->jasa->kategori->id_kategori;
-
-            if (!isset($grouped[$id_kategori])) {
-                $grouped[$id_kategori] = [
-                    'id_kategori' => $id_kategori,
-                    'nama_kategori' => $layanan->jasa->kategori->nama_kategori,
-                    'tarif' => $layanan->tarif,
-                    'namajasa' => $layanan->namajasa,
-                    'deskripsi' => $layanan->deskripsi,
-                    'id_satuan' => $layanan->satuan ? $layanan->satuan->id_satuan : null,
-                    'nama_satuan' => $layanan->satuan ? $layanan->satuan->nama_satuan : '-',
-                    'gambar' => [],
-                    'jasa_names' => [],
-                    'jasa_ids' => []
-                ];
+            if (!$layanan->jasa || !$layanan->jasa->kategori) {
+                continue;
             }
 
-            // 🔥 FIX: kumpulkan semua gambar dari semua layanan dalam kategori
-            foreach ($layanan->gambarLayanan as $img) {
-                $grouped[$id_kategori]['gambar'][] = $img->file_gambar;
-            }
-
-            $grouped[$id_kategori]['jasa_names'][] = $layanan->jasa->nama_jasa;
-            $grouped[$id_kategori]['jasa_ids'][] = (string)$layanan->jasa->id_jasa;
-        }
-
-        foreach ($grouped as $g) {
             $myCategories[] = [
-                'id_kategori' => $g['id_kategori'],
-                'nama_kategori' => $g['nama_kategori'],
-                'tarif' => $g['tarif'],
-                'namajasa' => $g['namajasa'] ?? null,
-                'deskripsi' => $g['deskripsi'],
-                'id_satuan' => $g['id_satuan'],
-                'nama_satuan' => $g['nama_satuan'],
-                'jasa_names' => implode(', ', $g['jasa_names']),
-                'jasa_ids_json' => json_encode($g['jasa_ids'])
+                'id_layanan' => $layanan->id_layanan,
+
+                'id_kategori' => $layanan->jasa->kategori->id_kategori,
+                'nama_kategori' => $layanan->jasa->kategori->nama_kategori,
+
+                'id_jasa' => $layanan->id_jasa,
+                'jasa_names' => $layanan->jasa->nama_jasa,
+
+                'tarif' => $layanan->tarif,
+                'namajasa' => $layanan->namajasa,
+                'deskripsi' => $layanan->deskripsi,
+
+                'id_satuan' => optional($layanan->satuan)->id_satuan,
+                'nama_satuan' => optional($layanan->satuan)->nama_satuan,
+
+                'gambar' => $layanan->gambarLayanan
+                    ->map(function ($g) {
+                        return [
+                            'id_gambar'   => $g->id_gambar,
+                            'file_gambar' => $g->file_gambar,
+                        ];
+                    })
+                    ->toArray(),
+
+                'jasa_ids_json' => json_encode([
+                    (string)$layanan->id_jasa
+                ])
             ];
         }
+
 
         $isFreelancer = !empty($myCategories);
 
@@ -233,6 +228,7 @@ class FreelancerController extends Controller
 
         $action = $request->input('action');
         $id_kategori = $request->input('id_kategori');
+        $id_layanan = $request->input('id_layanan');
 
         if ($action === 'save') {
             // Perubahan: Validasi untuk single value (bukan array)
@@ -242,7 +238,7 @@ class FreelancerController extends Controller
                 'jasa' => 'required', 
                 'namajasa' => 'required|string|max:255',// Tidak lagi array|min:1
 
-                'portofolio_images' => 'required|array|min:1|max:5',
+                'portofolio_images' => 'nullable|array|max:5',
                 'portofolio_images.*' => 'image|mimes:jpg,jpeg,png|max:2048'
             ], [
                 'jasa.required' => 'Jasa harus dipilih.',
@@ -253,6 +249,7 @@ class FreelancerController extends Controller
 
             // Perubahan: Hanya dapat 1 nilai (bukan array)
             $id_jasa = $request->input('jasa');
+            $id_layanan = $request->input('id_layanan');
             $id_satuan = $request->input('id_satuan');
             $tarif = $request->input('tarif');
             $deskripsi = $request->input('deskripsi');
@@ -261,41 +258,57 @@ class FreelancerController extends Controller
             try {
                 DB::beginTransaction();
 
-                // Cek apakah sudah ada layanan untuk kategori ini
-                $existingLayanan = Layanan::where('id_pengguna', $user->id_pengguna)
-                    ->whereHas('jasa', function($q) use ($id_kategori) {
-                        $q->where('id_kategori', $id_kategori);
-                    })->first();
+                if ($id_layanan) {
+                    $layanan = Layanan::where(
+                        'id_layanan',
+                        $id_layanan
+                    )->where(
+                        'id_pengguna',
+                        $user->id_pengguna
+                    )->firstOrFail();
 
-                if ($existingLayanan) {
-                    // Cek jika jasa berubah dan ada booking lama
-                    if ($existingLayanan->id_jasa != $id_jasa) {
-                        $hasBooking = Booking::where('id_layanan', $existingLayanan->id_layanan)->exists();
-                        
-                        if ($hasBooking) {
-                            throw new \Exception("Tidak dapat mengubah jasa karena sudah ada riwayat pesanan.");
-                        }
-                        
-                        // Hapus layanan lama, buat yang baru
-                        $existingLayanan->delete();
-                        $existingLayanan = null;
+                    $hasBooking = Booking::where(
+                        'id_layanan',
+                        $layanan->id_layanan
+                    )->exists();
+
+                    if ($hasBooking && $layanan->id_jasa != $id_jasa) {
+                        throw new \Exception(
+                            "Tidak dapat mengubah jasa karena sudah ada riwayat pesanan."
+                        );
                     }
-                }
 
-                if ($existingLayanan) {
-                    // Update layanan yang sudah ada
-                    $existingLayanan->update([
-                        'id_jasa' => $id_jasa, // Update juga jasa jika berbeda
+                    $layanan->update([
+                        'id_jasa' => $id_jasa,
+                        'id_satuan' => $id_satuan ?: null,
                         'tarif' => $tarif,
                         'namajasa' => $namajasa,
-                        'deskripsi' => $deskripsi,
-                        'id_satuan' => $id_satuan ?: null
+                        'deskripsi' => $deskripsi
                     ]);
 
-                    $layanan = $existingLayanan;
+                    if ($request->filled('deleted_images')) {
+
+                        $deletedImages = json_decode(
+                            $request->deleted_images,
+                            true
+                        );
+
+                        foreach ($deletedImages as $idGambar) {
+
+                            $gambar = GambarLayanan::find($idGambar);
+
+                            if ($gambar) {
+
+                                Storage::disk('public')
+                                    ->delete($gambar->file_gambar);
+
+                                $gambar->delete();
+                            }
+                        }
+                    }
 
                 } else {
-                    // Buat layanan baru
+
                     $layanan = Layanan::create([
                         'id_pengguna' => $user->id_pengguna,
                         'id_jasa' => $id_jasa,
@@ -304,6 +317,7 @@ class FreelancerController extends Controller
                         'namajasa' => $namajasa,
                         'deskripsi' => $deskripsi
                     ]);
+
                 }
 
                 if ($request->hasFile('portofolio_images')) {
@@ -341,22 +355,26 @@ class FreelancerController extends Controller
             try {
                 DB::beginTransaction();
 
-                $hasBooking = Booking::whereHas('layanan.jasa', function($q) use ($id_kategori) {
-                    $q->where('id_kategori', $id_kategori);
-                })->whereHas('layanan', function($q) use ($user) {
-                    $q->where('id_pengguna', $user->id_pengguna);
-                })->exists();
+                $layanan = Layanan::where(
+                    'id_layanan',
+                    $id_layanan
+                )->where(
+                    'id_pengguna',
+                    $user->id_pengguna
+                )->firstOrFail();
+
+                $hasBooking = Booking::where(
+                    'id_layanan',
+                    $layanan->id_layanan
+                )->exists();
 
                 if ($hasBooking) {
-                    throw new \Exception("Tidak dapat menghapus kategori yang memiliki riwayat pesanan.");
+                    throw new \Exception(
+                        "Tidak dapat menghapus layanan yang memiliki riwayat pesanan."
+                    );
                 }
 
-                $layanansToDelete = Layanan::where('id_pengguna', $user->id_pengguna)
-                    ->whereHas('jasa', function($q) use ($id_kategori) {
-                        $q->where('id_kategori', $id_kategori);
-                    })->pluck('id_layanan')->toArray();
-                
-                Layanan::whereIn('id_layanan', $layanansToDelete)->delete();
+                $layanan->delete();
 
                 $count = Layanan::where('id_pengguna', $user->id_pengguna)->count();
                 if ($count == 0) {
@@ -368,7 +386,7 @@ class FreelancerController extends Controller
                 if ($count == 0) {
                     return redirect()->route('home');
                 }
-                return redirect()->back()->with('success', 'Kategori layanan berhasil dihapus.');
+                return redirect()->back()->with('success', 'Layanan berhasil dihapus.');
 
             } catch (\Exception $e) {
                 DB::rollBack();
