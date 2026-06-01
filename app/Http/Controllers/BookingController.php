@@ -49,21 +49,27 @@ class BookingController extends Controller
                 $q->where('id_pengguna', $user->id_pengguna);
             })->orderBy('tanggal_booking', 'desc')->get();
 
-        $pesananAktif = [];
+        $pesananMenunggu = [];
+        $pesananDiproses = [];
         $pesananSelesai = [];
+        $pesananDibatalkan = [];
 
         // Format Pesanan Masuk (Sebagai Freelancer)
         foreach ($bookingsMasuk as $booking) {
             $data = $this->formatBookingData($booking, true);
-            if (in_array($booking->status_booking, ['SELESAI', 'DIBATALKAN', 'DITOLAK'])) {
+            if ($booking->status_booking == 'MENUNGGU') {
+                $pesananMenunggu[] = $data;
+            } elseif ($booking->status_booking == 'DIPROSES') {
+                $pesananDiproses[] = $data;
+            } elseif ($booking->status_booking == 'SELESAI') {
                 $pesananSelesai[] = $data;
             } else {
-                $pesananAktif[] = $data;
+                $pesananDibatalkan[] = $data;
             }
         }
 
         return view('booking.pesanan', compact(
-            'pesananAktif', 'pesananSelesai', 'user'
+            'pesananMenunggu', 'pesananDiproses', 'pesananSelesai', 'pesananDibatalkan', 'user'
         ));
     }
 
@@ -76,21 +82,27 @@ class BookingController extends Controller
             ->where('id_pengguna', $user->id_pengguna)
             ->orderBy('tanggal_booking', 'desc')->get();
 
-        $klienAktif = [];
+        $klienMenunggu = [];
+        $klienDiproses = [];
         $klienSelesai = [];
+        $klienDibatalkan = [];
 
         // Format Pesanan Keluar (Sebagai Klien)
         foreach ($bookingsDibuat as $booking) {
             $data = $this->formatBookingData($booking, false);
-            if (in_array($booking->status_booking, ['SELESAI', 'DIBATALKAN', 'DITOLAK'])) {
+            if ($booking->status_booking == 'MENUNGGU') {
+                $klienMenunggu[] = $data;
+            } elseif ($booking->status_booking == 'DIPROSES') {
+                $klienDiproses[] = $data;
+            } elseif ($booking->status_booking == 'SELESAI') {
                 $klienSelesai[] = $data;
             } else {
-                $klienAktif[] = $data;
+                $klienDibatalkan[] = $data;
             }
         }
 
         return view('booking.riwayat', compact(
-            'klienAktif', 'klienSelesai', 'user'
+            'klienMenunggu', 'klienDiproses', 'klienSelesai', 'klienDibatalkan', 'user'
         ));
     }
 

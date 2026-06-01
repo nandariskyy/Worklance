@@ -50,13 +50,23 @@
     </a>
 </div>
 
+<!-- Chart Status Booking -->
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 hover:shadow-md transition-shadow flex flex-col items-center">
+    <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Statistik Status Booking</h4>
+    <div class="w-full max-w-md h-64 relative">
+        <canvas id="bookingChart"></canvas>
+    </div>
+</div>
+
 <!-- Filter Tabs -->
-<div class="flex gap-2 mb-6 flex-wrap">
-    <a href="{{ route('admin.booking') }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? 'Semua') === 'Semua' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Semua</a>
-    <a href="{{ route('admin.booking', ['status' => 'MENUNGGU']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'MENUNGGU' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Menunggu</a>
-    <a href="{{ route('admin.booking', ['status' => 'DIPROSES']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'DIPROSES' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Diproses</a>
-    <a href="{{ route('admin.booking', ['status' => 'SELESAI']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'SELESAI' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Selesai</a>
-    <a href="{{ route('admin.booking', ['status' => 'DIBATALKAN']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'DIBATALKAN' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Dibatalkan</a>
+<div class="mb-6">
+    <div class="flex gap-3 flex-wrap">
+        <a href="{{ route('admin.booking') }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? 'Semua') === 'Semua' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Semua</a>
+        <a href="{{ route('admin.booking', ['status' => 'MENUNGGU']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'MENUNGGU' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Menunggu</a>
+        <a href="{{ route('admin.booking', ['status' => 'DIPROSES']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'DIPROSES' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Diproses</a>
+        <a href="{{ route('admin.booking', ['status' => 'SELESAI']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'SELESAI' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Selesai</a>
+        <a href="{{ route('admin.booking', ['status' => 'DIBATALKAN']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'DIBATALKAN' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Dibatalkan</a>
+    </div>
 </div>
 
 <!-- Table -->
@@ -222,6 +232,31 @@ function openDetailModal(bk) {
     
     openModal('modalDetail');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('bookingChart');
+    if (!ctx) return;
+    const stats = {!! json_encode($stats ?? []) !!};
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Menunggu', 'Diproses', 'Selesai', 'Dibatalkan'],
+            datasets: [{
+                data: [stats.Menunggu || 0, stats.Diproses || 0, stats.Selesai || 0, stats.Dibatalkan || 0],
+                backgroundColor: ['#9CA3AF', '#FBBF24', '#34D399', '#F87171'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, usePointStyle: true } }
+            }
+        }
+    });
+});
 </script>
 
 @endsection

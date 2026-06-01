@@ -50,10 +50,19 @@
     </div>
 
     <!-- List -->
-    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-100">
-        <h3 class="font-bold text-dark text-lg">Daftar Kategori ({{ count($kategoriList ?? []) }})</h3>
+    <div class="lg:col-span-2 flex flex-col gap-6">
+        <!-- Chart Kelola -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">Statistik Jasa per Kategori</h4>
+            <div class="w-full h-64 relative">
+                <canvas id="kelolaChart"></canvas>
+            </div>
         </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-100">
+            <h3 class="font-bold text-dark text-lg">Daftar Kategori ({{ count($kategoriList ?? []) }})</h3>
+            </div>
         <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
@@ -374,6 +383,37 @@ function openEditSatuanModal(st) {
     document.getElementById('formEditSatuan').action = "/admin/kelola/satuan/" + st.id_satuan;
     openModal('modalEditSatuan');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('kelolaChart');
+    if (!ctx) return;
+    const kategoriData = {!! json_encode($kategoriList ?? []) !!};
+    
+    const labels = kategoriData.map(item => item.nama_kategori);
+    const data = kategoriData.map(item => item.jumlah_jasa);
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Jasa',
+                data: data,
+                backgroundColor: '#2196F3',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+});
 </script>
 
 @endsection

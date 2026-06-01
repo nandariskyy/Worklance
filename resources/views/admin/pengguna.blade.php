@@ -47,12 +47,32 @@
 </div>
 @endif
 
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center h-64 hover:shadow-md transition-shadow">
+        <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Persebaran Role</h4>
+        <div class="h-full w-full relative flex justify-center">
+            <div class="w-full max-w-sm h-full relative">
+                <canvas id="roleChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center h-64 hover:shadow-md transition-shadow">
+        <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Top 5 Kabupaten</h4>
+        <div class="h-full w-full relative">
+            <canvas id="kotaChart"></canvas>
+        </div>
+    </div>
+</div>
+
 <!-- Filter Tabs -->
-<div class="flex gap-2 mb-6 flex-wrap">
-    <a href="{{ route('admin.pengguna') }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? 'Semua') === 'Semua' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Semua</a>
-    <a href="{{ route('admin.pengguna', ['role' => 'Admin']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'Admin' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Admin</a>
-    <a href="{{ route('admin.pengguna', ['role' => 'User']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'User' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">User</a>
-    <a href="{{ route('admin.pengguna', ['role' => 'Freelancer']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeRole ?? '') === 'Freelancer' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Freelancer</a>
+<div class="mb-6">
+    <div class="flex gap-3 flex-wrap">
+        <a href="{{ route('admin.pengguna') }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? 'Semua') === 'Semua' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Semua</a>
+        <a href="{{ route('admin.pengguna', ['role' => 'Admin']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Admin' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Admin</a>
+        <a href="{{ route('admin.pengguna', ['role' => 'Klien']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Klien' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">User</a>
+        <a href="{{ route('admin.pengguna', ['role' => 'Freelancer']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Freelancer' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Freelancer</a>
+    </div>
 </div>
 
 <!-- Table -->
@@ -357,6 +377,62 @@ function openDetailModal(user) {
     
     openModal('modalDetail');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('roleChart');
+    if (!ctx) return;
+    const rawData = {!! json_encode($chartData ?? []) !!};
+    
+    const labels = rawData.map(item => item.nama_role);
+    const data = rawData.map(item => item.total);
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#2196F3', '#4CAF50', '#FF6B00'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, usePointStyle: true } }
+            },
+            cutout: '65%'
+        }
+    });
+
+    // Kota Chart
+    const ctxKota = document.getElementById('kotaChart');
+    if (ctxKota) {
+        const kotaData = {!! json_encode($kotaChartData ?? []) !!};
+        new Chart(ctxKota.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: kotaData.map(i => i.kabupaten),
+                datasets: [{
+                    label: 'Pengguna',
+                    data: kotaData.map(i => i.total),
+                    backgroundColor: '#9C27B0',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
 </script>
 
 @endsection

@@ -53,16 +53,23 @@ class CategoryController extends Controller
                 ->where('booking.id_layanan', $layanan->id_layanan)
                 ->avg('ulasan.rating');
 
-            $freelancers[] = [
-            'id_layanan'    => $layanan->id_layanan,
-            'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : 'Tanpa Nama',
-            'alamat_lengkap'=> $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
-            'nama_kota'     => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '-',
-            'nama_jasa' => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa ? $layanan->jasa->nama_jasa : '-'),
-            'avg_rating'    => $avgRating ? round($avgRating, 1) : 0,
-            'tarif'         => $layanan->tarif ?? 0,
-            'nama_satuan'   => $layanan->satuan ? $layanan->satuan->nama_satuan : 'proyek',
+            // Ambil gambar pertama jika ada
+            $gambar = \App\Models\GambarLayanan::where('id_layanan', $layanan->id_layanan)->first();
+            $gambar_url = $gambar ? asset('storage/' . $gambar->file_gambar) : null;
 
+            $freelancers[] = [
+                'id_layanan' => $layanan->id_layanan,
+                'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : 'Tanpa Nama',
+                'foto_profil' => $layanan->pengguna ? $layanan->pengguna->foto_profil : null,
+                'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
+                'nama_kota' => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '-',
+                'nama_jasa' => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa ? $layanan->jasa->nama_jasa : '-'),
+                'namajasa_custom' => $layanan->namajasa ?? null,
+                'deskripsi' => $layanan->deskripsi ?? '',
+                'tarif' => $layanan->tarif ?? 0,
+                'nama_satuan' => $layanan->satuan ? $layanan->satuan->nama_satuan : 'Pesanan',
+                'avg_rating' => $avgRating ? round($avgRating, 1) : 0,
+                'gambar' => $gambar_url
             ];
         }
 

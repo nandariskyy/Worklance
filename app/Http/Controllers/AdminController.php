@@ -64,6 +64,19 @@ class AdminController extends Controller
             
         $newPengajuan = json_decode(json_encode($newPengajuanQuery), true);
 
+        // Booking Per Bulan
+        $bookingPerBulanQuery = DB::table('booking')
+            ->select(DB::raw('MONTH(tanggal_booking) as bulan'), DB::raw('count(*) as total'))
+            ->whereYear('tanggal_booking', date('Y'))
+            ->groupBy(DB::raw('MONTH(tanggal_booking)'))
+            ->orderBy('bulan')
+            ->get();
+
+        $bookingPerBulan = array_fill(1, 12, 0);
+        foreach($bookingPerBulanQuery as $b) {
+            $bookingPerBulan[$b->bulan] = $b->total;
+        }
+
         $data = [
             'currentPage' => 'dashboard',
             'adminNama' => 'Admin WorkLance',
@@ -75,6 +88,7 @@ class AdminController extends Controller
             'bookingTerbaru' => $bookingTerbaru,
             'kategoriPopuler' => $kategoriPopuler,
             'newPengajuan' => $newPengajuan,
+            'bookingPerBulan' => array_values($bookingPerBulan),
             'maxKategori' => count($kategoriPopuler) > 0 ? max(array_column($kategoriPopuler, 'total')) : 0
         ];
 
@@ -91,12 +105,29 @@ class AdminController extends Controller
             $query->where('role.nama_role', $request->role);
         }
             
+        $roleStats = DB::table('pengguna')
+            ->join('role', 'pengguna.id_role', '=', 'role.id_role')
+            ->select('role.nama_role', DB::raw('count(*) as total'))
+            ->groupBy('role.nama_role')
+            ->get();
+
+        $kotaStatsQuery = DB::table('pengguna')
+            ->join('kabupaten', 'pengguna.id_kabupaten', '=', 'kabupaten.id_kabupaten')
+            ->select('kabupaten.nama_kabupaten as kabupaten', DB::raw('count(*) as total'))
+            ->whereNotNull('pengguna.id_kabupaten')
+            ->groupBy('kabupaten.nama_kabupaten', 'pengguna.id_kabupaten')
+            ->orderByDesc('total')
+            ->take(5)
+            ->get();
+
         $data = [
             'currentPage' => 'pengguna',
             'adminNama' => 'Admin WorkLance',
             'adminInitials' => 'AW',
             'penggunaList' => json_decode(json_encode($query->get()), true),
-            'activeRole' => $request->role ?? 'Semua'
+            'activeRole' => $request->role ?? 'Semua',
+            'chartData' => json_decode(json_encode($roleStats), true),
+            'kotaChartData' => json_decode(json_encode($kotaStatsQuery), true)
         ];
 
         return view('admin.pengguna', $data);
@@ -132,13 +163,21 @@ class AdminController extends Controller
 
         $kategoriList = Kategori::all();
 
+        $freelancerStats = DB::table('layanan')
+            ->join('jasa', 'layanan.id_jasa', '=', 'jasa.id_jasa')
+            ->join('kategori', 'jasa.id_kategori', '=', 'kategori.id_kategori')
+            ->select('kategori.nama_kategori', DB::raw('count(distinct layanan.id_pengguna) as total'))
+            ->groupBy('kategori.nama_kategori')
+            ->get();
+
         $data = [
             'currentPage' => 'freelancer',
             'adminNama' => 'Admin WorkLance',
             'adminInitials' => 'AW',
             'freelancerList' => $freelancerList,
             'kategoriList' => $kategoriList,
-            'activeKategori' => $request->kategori ?? 'Semua'
+            'activeKategori' => $request->kategori ?? 'Semua',
+            'chartData' => json_decode(json_encode($freelancerStats), true)
         ];
 
         return view('admin.freelancer', $data);
@@ -206,12 +245,18 @@ class AdminController extends Controller
             $p['kategori_diajukan'] = '-'; 
         }
 
+        $pengajuanStats = DB::table('pengajuan_freelancer')
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->get();
+
         $data = [
             'currentPage' => 'pengajuan',
             'adminNama' => 'Admin WorkLance',
             'adminInitials' => 'AW',
             'pengajuanList' => $pengajuanList,
-            'activeStatus' => $request->status ?? 'Semua'
+            'activeStatus' => $request->status ?? 'Semua',
+            'chartData' => json_decode(json_encode($pengajuanStats), true)
         ];
 
         return view('admin.pengajuan', $data);

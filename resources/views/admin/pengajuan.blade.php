@@ -19,12 +19,22 @@
     </div>
 </div>
 
+<!-- Chart Status Pengajuan -->
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 hover:shadow-md transition-shadow flex flex-col items-center">
+    <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Statistik Status Pengajuan</h4>
+    <div class="w-full max-w-md h-64 relative">
+        <canvas id="pengajuanChart"></canvas>
+    </div>
+</div>
+
 <!-- Filter Tabs -->
-<div class="flex gap-2 mb-6 flex-wrap">
-    <a href="{{ route('admin.pengajuan') }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? 'Semua') === 'Semua' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Semua</a>
-    <a href="{{ route('admin.pengajuan', ['status' => 'MENUNGGU']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'MENUNGGU' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Menunggu</a>
-    <a href="{{ route('admin.pengajuan', ['status' => 'DITERIMA']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'DITERIMA' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Diterima</a>
-    <a href="{{ route('admin.pengajuan', ['status' => 'DITOLAK']) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeStatus ?? '') === 'DITOLAK' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Ditolak</a>
+<div class="mb-6">
+    <div class="flex gap-3 flex-wrap">
+        <a href="{{ route('admin.pengajuan') }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? 'Semua') === 'Semua' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Semua</a>
+        <a href="{{ route('admin.pengajuan', ['status' => 'MENUNGGU']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'MENUNGGU' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Menunggu</a>
+        <a href="{{ route('admin.pengajuan', ['status' => 'DITERIMA']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'DITERIMA' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Diterima</a>
+        <a href="{{ route('admin.pengajuan', ['status' => 'DITOLAK']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeStatus ?? '') === 'DITOLAK' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Ditolak</a>
+    </div>
 </div>
 
 <!-- Table -->
@@ -224,6 +234,35 @@ function submitVerifikasi(action) {
         document.getElementById('verifikasiForm').submit();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('pengajuanChart');
+    if (!ctx) return;
+    const rawData = {!! json_encode($chartData ?? []) !!};
+    
+    const labels = rawData.map(item => item.status);
+    const data = rawData.map(item => item.total);
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#9CA3AF', '#34D399', '#F87171'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, usePointStyle: true } }
+            },
+            cutout: '65%'
+        }
+    });
+});
 </script>
 
 @endsection

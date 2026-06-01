@@ -402,6 +402,7 @@
             if (opt.value && opt.value != data.id_kategori) opt.disabled = true; 
         });
 
+
         inputTarif.value = data.tarif;
         selectSatuan.value = data.id_satuan;
         inputNamaJasa.value = data.namajasa;

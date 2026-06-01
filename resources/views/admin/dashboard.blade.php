@@ -3,17 +3,32 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+<!-- Page Title & Action -->
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
   <div>
-    <h1 class="text-3xl font-bold text-dark mb-1">Dashboard</h1>
-    <p class="text-gray-500">Selamat datang kembali, {{ $adminNama }}. Pantau aktivitas terbaru hari ini.</p>
+    <h1 class="text-3xl font-bold text-dark mb-1">Dashboard Overview</h1>
+    <p class="text-gray-500">Selamat datang kembali, lihat ringkasan aktivitas hari ini.</p>
+  </div>
+  <div class="flex gap-3">
+    <button class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+      Export Data
+    </button>
   </div>
 </div>
 
-<!-- Stats Grid -->
+<!-- Chart Booking Per Bulan -->
+<div class="mb-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+  <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Statistik Booking Tahun {{ date('Y') }}</h4>
+  <div class="h-64 relative w-full">
+      <canvas id="bookingBulanChart"></canvas>
+  </div>
+</div>
+
+<!-- Overview Stats -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
   <!-- Stat 1: Total User -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-all hover:-translate-y-1">
     <div class="flex justify-between items-start mb-4">
       <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +41,7 @@
   </div>
 
   <!-- Stat 2: Total Freelancer -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-all hover:-translate-y-1">
     <div class="flex justify-between items-start mb-4">
       <div class="w-12 h-12 bg-orange-50 text-accent rounded-xl flex items-center justify-center">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +54,7 @@
   </div>
 
   <!-- Stat 3: Total Booking -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-all hover:-translate-y-1">
     <div class="flex justify-between items-start mb-4">
       <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +67,7 @@
   </div>
 
   <!-- Stat 4: Booking Selesai -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-all hover:-translate-y-1">
     <div class="flex justify-between items-start mb-4">
       <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +187,93 @@
         <p class="text-gray-400 text-sm text-center">Belum ada data kategori.</p>
         @endforelse
       </div>
+
+      <!-- Chart Kategori -->
+      <div class="mt-8">
+        <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Distribusi Kategori</h4>
+        <div class="h-64 relative">
+            <canvas id="kategoriChart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart Distribusi Kategori
+    const ctxKategori = document.getElementById('kategoriChart').getContext('2d');
+    const chartData = {!! json_encode($kategoriPopuler ?? []) !!};
+    
+    const labels = chartData.map(item => item.nama_kategori);
+    const data = chartData.map(item => item.total);
+    
+    new Chart(ctxKategori, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#FF6B00', '#F9A826', '#4CAF50', '#2196F3', '#9C27B0'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#ffffff',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        },
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Chart Booking Per Bulan
+    const ctxBooking = document.getElementById('bookingBulanChart');
+    if (ctxBooking) {
+        const bookingBulanData = {!! json_encode($bookingPerBulan ?? []) !!};
+        new Chart(ctxBooking.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                datasets: [{
+                    label: 'Jumlah Booking',
+                    data: bookingBulanData,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#2196F3',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
 @endsection

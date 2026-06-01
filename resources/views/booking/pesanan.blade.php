@@ -37,21 +37,38 @@
     <!-- Container FREELANCER -->
     <div>
         <!-- Tabs -->
-        <div class="flex border-b border-gray-200 mb-8 overflow-x-auto hide-scrollbar">
-          <button onclick="switchTab('aktif')" id="aktifBtn" class="px-6 py-4 font-bold text-accent border-b-2 border-accent transition-colors whitespace-nowrap">
-            Berjalan / Menunggu ({{ count($pesananAktif) }})
+        <div class="flex border-b border-gray-200 mb-8 overflow-x-auto hide-scrollbar gap-2">
+          <button onclick="switchTab('menunggu')" id="menungguBtn" class="px-6 py-4 font-bold text-accent border-b-2 border-accent transition-colors whitespace-nowrap">
+            Menunggu ({{ count($pesananMenunggu) }})
+          </button>
+          <button onclick="switchTab('diproses')" id="diprosesBtn" class="px-6 py-4 font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-colors whitespace-nowrap">
+            Diproses ({{ count($pesananDiproses) }})
           </button>
           <button onclick="switchTab('selesai')" id="selesaiBtn" class="px-6 py-4 font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-colors whitespace-nowrap">
-            Selesai / Dibatalkan ({{ count($pesananSelesai) }})
+            Selesai ({{ count($pesananSelesai) }})
+          </button>
+          <button onclick="switchTab('dibatalkan')" id="dibatalkanBtn" class="px-6 py-4 font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-colors whitespace-nowrap">
+            Dibatalkan/Ditolak ({{ count($pesananDibatalkan) }})
           </button>
         </div>
 
-        <!-- Aktif -->
-        <div id="aktifList" class="space-y-4 block">
-          @if (empty($pesananAktif))
-            @include('components.empty_state', ['msg' => 'Belum ada pesanan masuk yang aktif.'])
+        <!-- Menunggu -->
+        <div id="menungguList" class="space-y-4 block">
+          @if (empty($pesananMenunggu))
+            @include('components.empty_state', ['msg' => 'Tidak ada pesanan menunggu konfirmasi.'])
           @else
-            @foreach ($pesananAktif as $p)
+            @foreach ($pesananMenunggu as $p)
+              @include('booking.card_freelancer', ['p' => $p, 'isActive' => true])
+            @endforeach
+          @endif
+        </div>
+
+        <!-- Diproses -->
+        <div id="diprosesList" class="space-y-4 hidden">
+          @if (empty($pesananDiproses))
+            @include('components.empty_state', ['msg' => 'Tidak ada pesanan yang sedang diproses.'])
+          @else
+            @foreach ($pesananDiproses as $p)
               @include('booking.card_freelancer', ['p' => $p, 'isActive' => true])
             @endforeach
           @endif
@@ -67,37 +84,42 @@
             @endforeach
           @endif
         </div>
+
+        <!-- Dibatalkan -->
+        <div id="dibatalkanList" class="space-y-4 hidden">
+          @if (empty($pesananDibatalkan))
+            @include('components.empty_state', ['msg' => 'Tidak ada riwayat pekerjaan dibatalkan.'])
+          @else
+            @foreach ($pesananDibatalkan as $p)
+              @include('booking.card_freelancer', ['p' => $p, 'isActive' => false])
+            @endforeach
+          @endif
+        </div>
     </div>
   </div>
 
   <script>
     function switchTab(tab) {
-      const btnAktif = document.getElementById('aktifBtn');
-      const btnSelesai = document.getElementById('selesaiBtn');
-      const listAktif = document.getElementById('aktifList');
-      const listSelesai = document.getElementById('selesaiList');
-
-      if (tab === 'aktif') {
-        listAktif.classList.remove('hidden');
-        listAktif.classList.add('block');
-        listSelesai.classList.add('hidden');
-        listSelesai.classList.remove('block');
-
-        btnAktif.classList.add('text-accent', 'border-accent');
-        btnAktif.classList.remove('text-gray-400', 'border-transparent');
-        btnSelesai.classList.remove('text-accent', 'border-accent');
-        btnSelesai.classList.add('text-gray-400', 'border-transparent');
-      } else {
-        listSelesai.classList.remove('hidden');
-        listSelesai.classList.add('block');
-        listAktif.classList.add('hidden');
-        listAktif.classList.remove('block');
-
-        btnSelesai.classList.add('text-accent', 'border-accent');
-        btnSelesai.classList.remove('text-gray-400', 'border-transparent');
-        btnAktif.classList.remove('text-accent', 'border-accent');
-        btnAktif.classList.add('text-gray-400', 'border-transparent');
-      }
+      const tabs = ['menunggu', 'diproses', 'selesai', 'dibatalkan'];
+      
+      tabs.forEach(t => {
+        const btn = document.getElementById(t + 'Btn');
+        const list = document.getElementById(t + 'List');
+        
+        if (t === tab) {
+          list.classList.remove('hidden');
+          list.classList.add('block');
+          
+          btn.classList.add('text-accent', 'border-accent', 'font-bold');
+          btn.classList.remove('text-gray-400', 'border-transparent', 'font-semibold');
+        } else {
+          list.classList.add('hidden');
+          list.classList.remove('block');
+          
+          btn.classList.remove('text-accent', 'border-accent', 'font-bold');
+          btn.classList.add('text-gray-400', 'border-transparent', 'font-semibold');
+        }
+      });
     }
   </script>
 @endsection

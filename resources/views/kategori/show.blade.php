@@ -70,41 +70,57 @@
                 <p class="text-gray-500 text-sm mt-1">Coba sesuaikan ulang filter kota atau keahlian jasa di atas.</p>
             </div>
         @else
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            @foreach ($freelancers as $idx => $fl)
-            <a href="{{ route('layanan.show', $fl['id_layanan'] ?? 1) }}"
-            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 block">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                @foreach ($freelancers as $idx => $fl)
+                <a href="{{ route('layanan.show', $fl['id_layanan']) }}"
+                   class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 block flex flex-col h-full">
 
-                <!-- Gambar -->
-                <div class="relative bg-gray-100 h-32 flex items-center justify-center overflow-hidden">
-                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <!-- Gambar -->
+                  <div class="relative bg-gray-100 h-32 md:h-40 flex items-center justify-center overflow-hidden shrink-0">
+                    @if (!empty($fl['gambar']))
+                      <img src="{{ $fl['gambar'] }}" alt="{{ $fl['namajasa_custom'] ?: $fl['nama_jasa'] }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    @else
+                      <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span class="absolute top-2 right-2 bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-yellow-100">
-                        <svg class="w-3 h-3 fill-current text-yellow-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        {{ number_format($fl['avg_rating'], 1) }}
+                      </svg>
+                    @endif
+                    <span class="absolute top-2 right-2 md:top-3 md:right-3 bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-yellow-100">
+                      <svg class="w-3 h-3 fill-current text-yellow-400" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                      {{ number_format($fl['avg_rating'], 1) }}
                     </span>
-                </div>
+                  </div>
 
-                <!-- Info -->
-                <div class="p-3.5">
-                    <h3 class="font-bold text-dark text-sm leading-snug mb-0.5 truncate">{{ $fl['nama_jasa'] }}</h3>
-                    <p class="text-xs text-gray-400 mb-2 truncate">{{ $fl['nama_pengguna'] }}</p>
-                    <p class="text-sm font-extrabold text-dark mb-2">
-                        Rp {{ number_format($fl['tarif'] ?? 0, 0, ',', '.') }}
-                        <span class="font-normal text-gray-400 text-xs">/{{ $fl['nama_satuan'] ?? 'proyek' }}</span>
-                    </p>
-                    <div class="flex items-center gap-1 text-accent text-xs font-medium">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <!-- Info -->
+                  <div class="p-4 flex flex-col grow">
+                    <h3 class="font-bold text-dark text-sm md:text-base leading-snug mb-1 line-clamp-2" title="{{ $fl['namajasa_custom'] ?: 'Layanan ' . $fl['nama_jasa'] }}">{{ $fl['namajasa_custom'] ?: 'Layanan ' . $fl['nama_jasa'] }}</h3>
+                    <div class="mb-4 flex items-center gap-2.5">
+                       @if($fl['foto_profil'])
+                         <img src="{{ asset('storage/' . $fl['foto_profil']) }}" alt="Foto" class="w-7 h-7 rounded-full object-cover shadow-sm border border-gray-100 shrink-0">
+                       @else
+                         <span class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[11px] border border-primary/20 shrink-0">{{ substr($fl['nama_pengguna'], 0, 1) }}</span>
+                       @endif
+                       <span class="text-sm font-bold text-gray-600 truncate">{{ $fl['nama_pengguna'] }}</span>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <p class="text-sm md:text-base font-extrabold text-dark mb-3">
+                          Rp {{ number_format($fl['tarif'], 0, ',', '.') }}
+                          <span class="font-normal text-gray-400 text-[10px] md:text-xs">/{{ $fl['nama_satuan'] }}</span>
+                        </p>
+                        <div class="flex items-center gap-1.5 text-accent text-[10px] md:text-xs font-medium border-t border-gray-100 pt-3 truncate">
+                          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        {{ $fl['nama_kota'] !== '-' ? $fl['nama_kota'] : ($fl['alamat_lengkap'] ?? '-') }}
+                          </svg>
+                          {{ $fl['nama_kota'] === '-' || empty($fl['nama_kota']) ? 'Kota Tidak Diketahui' : $fl['nama_kota'] }}
+                        </div>
                     </div>
-                    </div>
-            </a>
-            @endforeach
-        </div>
+                  </div>
+                </a>
+                @endforeach
+            </div>
         @endif
         
     </div>

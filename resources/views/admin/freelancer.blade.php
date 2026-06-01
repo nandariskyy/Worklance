@@ -32,12 +32,23 @@
 </div>
 @endif
 
-<!-- Filter Tabs -->
-<div class="flex gap-2 mb-6 flex-wrap">
-    <a href="{{ route('admin.freelancer') }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeKategori ?? 'Semua') === 'Semua' ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Semua</a>
-    @foreach($kategoriList ?? [] as $kat)
-    <a href="{{ route('admin.freelancer', ['kategori' => $kat->nama_kategori]) }}" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ ($activeKategori ?? '') === $kat->nama_kategori ? 'bg-dark text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">{{ $kat->nama_kategori }}</a>
-    @endforeach
+<!-- Chart Kategori -->
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 hover:shadow-md transition-shadow">
+    <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">Freelancer per Kategori</h4>
+    <div class="w-full h-64 relative">
+        <canvas id="kategoriFreelancerChart"></canvas>
+    </div>
+</div>
+
+<!-- Filter Dropdown -->
+<div class="mb-6 flex items-center gap-3">
+    <label class="text-sm font-bold text-dark">Filter Kategori:</label>
+    <select onchange="window.location.href=this.value" class="px-4 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-accent text-sm text-dark font-medium shadow-sm cursor-pointer">
+        <option value="{{ route('admin.freelancer') }}">Semua Kategori</option>
+        @foreach($kategoriList ?? [] as $k)
+            <option value="{{ route('admin.freelancer', ['kategori' => $k->id_kategori]) }}" {{ ($activeKategori ?? '') == $k->id_kategori ? 'selected' : '' }}>{{ $k->nama_kategori }}</option>
+        @endforeach
+    </select>
 </div>
 
 <!-- Table -->
@@ -172,6 +183,37 @@ function openDetailModal(fl) {
     
     openModal('modalDetail');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('kategoriFreelancerChart');
+    if (!ctx) return;
+    const rawData = {!! json_encode($chartData ?? []) !!};
+    
+    const labels = rawData.map(item => item.nama_kategori);
+    const data = rawData.map(item => item.total);
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Freelancer',
+                data: data,
+                backgroundColor: '#FF6B00',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+});
 </script>
 
 @endsection
