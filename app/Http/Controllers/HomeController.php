@@ -39,10 +39,16 @@ class HomeController extends Controller
                 ->join('booking', 'ulasan.id_booking', '=', 'booking.id_booking')
                 ->where('booking.id_layanan', $layanan->id_layanan)
                 ->avg('ulasan.rating');
-                
+            $gambar_cover = $layanan->gambar_cover ? asset('storage/' . $layanan->gambar_cover) : null;
+            if (!$gambar_cover) {
+                $gambarObj = \App\Models\GambarPortofolio::where('id_layanan', $layanan->id_layanan)->first();
+                $gambar_cover = $gambarObj ? asset('storage/' . $gambarObj->file_gambar) : null;
+            }
+
             $freelancersAll[] = [
                 'id_layanan' => $layanan->id_layanan,
                 'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : 'Tanpa Nama',
+                'foto_profil' => $layanan->pengguna ? $layanan->pengguna->foto_profil : null,
                 'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
                 'nama_kota' => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '',
                 'nama_kategori' => $layanan->jasa && $layanan->jasa->kategori ? $layanan->jasa->kategori->nama_kategori : '-',
@@ -50,6 +56,7 @@ class HomeController extends Controller
                 'avg_rating'  => $avgRating ? round($avgRating, 1) : 0,
                 'tarif'       => $layanan->tarif ?? 0,
                 'nama_satuan' => $layanan->satuan ? $layanan->satuan->nama_satuan : 'proyek',
+                'gambar_cover' => $gambar_cover
             ];
         }
 

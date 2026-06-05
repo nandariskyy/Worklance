@@ -14,7 +14,7 @@ use App\Models\Kecamatan;
 use App\Models\Desa;
 use App\Models\PengajuanFreelancer;
 use App\Models\Booking;
-use App\Models\GambarLayanan;
+use App\Models\GambarPortofolio;
 use Illuminate\Support\Facades\Storage;
 
 class FreelancerController extends Controller
@@ -111,7 +111,7 @@ class FreelancerController extends Controller
 
         $id_pengguna = $user->id_pengguna;
 
-        $layanans = Layanan::with(['jasa.kategori', 'satuan', 'gambarLayanan'])->where('id_pengguna', $id_pengguna)->get();
+        $layanans = Layanan::with(['jasa.kategori', 'satuan', 'gambarPortofolio'])->where('id_pengguna', $id_pengguna)->get();
 
         $myCategories = [];
 
@@ -133,11 +133,12 @@ class FreelancerController extends Controller
                 'tarif' => $layanan->tarif,
                 'namajasa' => $layanan->namajasa,
                 'deskripsi' => $layanan->deskripsi,
+                'gambar_cover' => $layanan->gambar_cover ? asset('storage/' . $layanan->gambar_cover) : null,
 
                 'id_satuan' => optional($layanan->satuan)->id_satuan,
                 'nama_satuan' => optional($layanan->satuan)->nama_satuan,
 
-                'gambar' => $layanan->gambarLayanan
+                'gambar' => $layanan->gambarPortofolio
                     ->map(function ($g) {
                         return [
                             'id_gambar'   => $g->id_gambar,
@@ -155,12 +156,12 @@ class FreelancerController extends Controller
 
         $isFreelancer = !empty($myCategories);
 
-        return view('freelancer.kelola', compact('kategoriList', 'jasaList', 'satuanList', 'myCategories', 'isFreelancer', 'user'));
+        return view('freelancer.kelola', compact('kategoriList', 'jasaList', 'satuanList', 'myCategories', 'isFreelancer', 'user', 'layanans'));
     }
 
     public function profilFreelancer($id_layanan)
     {
-        $layanan = Layanan::with(['jasa.kategori', 'satuan', 'pengguna'])
+        $layanan = Layanan::with(['jasa.kategori', 'satuan', 'pengguna.kabupaten'])
             ->findOrFail($id_layanan);
 
         $id_pengguna = $layanan->id_pengguna;
@@ -170,6 +171,8 @@ class FreelancerController extends Controller
             'id_pengguna'   => $id_pengguna,
             'nama_jasa'     => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa->nama_jasa ?? '-'),
             'nama_pengguna' => $layanan->pengguna->nama_pengguna ?? '-',
+            'foto_profil'   => $layanan->pengguna->foto_profil ?? null,
+            'nama_kota'     => $layanan->pengguna->kabupaten->nama_kabupaten ?? '-',
             'no_telp'       => $layanan->pengguna->no_telp ?? '-',
             'alamat_lengkap'=> $layanan->pengguna->alamat_lengkap ?? '-',
             'tarif'         => $layanan->tarif,
@@ -182,13 +185,19 @@ class FreelancerController extends Controller
             ->where('id_pengguna', $id_pengguna)
             ->get()
             ->map(function($l) {
+                $gambar = $l->gambar_cover ? asset('storage/' . $l->gambar_cover) : null;
+                if (!$gambar) {
+                    $gambarObj = \App\Models\GambarPortofolio::where('id_layanan', $l->id_layanan)->first();
+                    $gambar = $gambarObj ? asset('storage/' . $gambarObj->file_gambar) : null;
+                }
+                
                 return [
                     'id_layanan'  => $l->id_layanan,
                     'nama_jasa'   => !empty($l->namajasa) ? $l->namajasa : ($l->jasa->nama_jasa ?? '-'),
                     'tarif'       => $l->tarif,
                     'nama_satuan' => $l->satuan->nama_satuan ?? 'proyek',
                     'avg_rating'  => 5.0,
-                    'gambar'      => null,
+                    'gambar'      => $gambar,
                 ];
             })->toArray();
 
@@ -239,7 +248,8 @@ class FreelancerController extends Controller
                 'namajasa' => 'required|string|max:255',// Tidak lagi array|min:1
 
                 'portofolio_images' => 'nullable|array|max:5',
-                'portofolio_images.*' => 'image|mimes:jpg,jpeg,png|max:2048'
+                'portofolio_images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
+                'gambar_cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ], [
                 'jasa.required' => 'Jasa harus dipilih.',
                     'portofolio_images.required' => 'Minimal 1 gambar portofolio wajib diupload.',
@@ -278,13 +288,27 @@ class FreelancerController extends Controller
                         );
                     }
 
-                    $layanan->update([
+                    $updateData = [
                         'id_jasa' => $id_jasa,
                         'id_satuan' => $id_satuan ?: null,
                         'tarif' => $tarif,
                         'namajasa' => $namajasa,
                         'deskripsi' => $deskripsi
-                    ]);
+                    ];
+
+                    if ($request->input('remove_cover') == '1') {
+                        if ($layanan->gambar_cover) {
+                            Storage::disk('public')->delete($layanan->gambar_cover);
+                        }
+                        $updateData['gambar_cover'] = null;
+                    } elseif ($request->hasFile('gambar_cover')) {
+                        if ($layanan->gambar_cover) {
+                            Storage::disk('public')->delete($layanan->gambar_cover);
+                        }
+                        $updateData['gambar_cover'] = $request->file('gambar_cover')->store('covers', 'public');
+                    }
+
+                    $layanan->update($updateData);
 
                     if ($request->filled('deleted_images')) {
 
@@ -295,7 +319,7 @@ class FreelancerController extends Controller
 
                         foreach ($deletedImages as $idGambar) {
 
-                            $gambar = GambarLayanan::find($idGambar);
+                            $gambar = GambarPortofolio::find($idGambar);
 
                             if ($gambar) {
 
@@ -309,14 +333,20 @@ class FreelancerController extends Controller
 
                 } else {
 
-                    $layanan = Layanan::create([
+                    $createData = [
                         'id_pengguna' => $user->id_pengguna,
                         'id_jasa' => $id_jasa,
                         'id_satuan' => $id_satuan ?: null,
                         'tarif' => $tarif,
                         'namajasa' => $namajasa,
                         'deskripsi' => $deskripsi
-                    ]);
+                    ];
+
+                    if ($request->hasFile('gambar_cover')) {
+                        $createData['gambar_cover'] = $request->file('gambar_cover')->store('covers', 'public');
+                    }
+
+                    $layanan = Layanan::create($createData);
 
                 }
 
@@ -333,7 +363,7 @@ class FreelancerController extends Controller
                             'public'
                         );
 
-                        GambarLayanan::create([
+                        GambarPortofolio::create([
                             'id_layanan' => $layanan->id_layanan,
                             'file_gambar' => 'portofolio/' . $filename
                         ]);

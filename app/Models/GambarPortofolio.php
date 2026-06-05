@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GambarLayanan extends Model
+class GambarPortofolio extends Model
 {
-    protected $table = 'gambar_layanan';
+    protected $table = 'gambar_portofolio';
     protected $primaryKey = 'id_gambar';
     public $timestamps = false;
     protected $fillable = [

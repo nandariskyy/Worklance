@@ -14,9 +14,15 @@
 
         <!-- Avatar & Nama — lebih lebar -->
         <div class="flex items-center gap-5">
-          <img src="https://ui-avatars.com/api/?name={{ urlencode($profileData['nama_pengguna']) }}&background=96B3BF&color=fff&size=200"
-               alt="Avatar"
-               class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover flex-shrink-0">
+          @if(!empty($profileData['foto_profil']))
+            <img src="{{ asset('storage/' . $profileData['foto_profil']) }}"
+                 alt="Avatar"
+                 class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover flex-shrink-0">
+          @else
+            <img src="https://ui-avatars.com/api/?name={{ urlencode($profileData['nama_pengguna']) }}&background=96B3BF&color=fff&size=200"
+                 alt="Avatar"
+                 class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover flex-shrink-0">
+          @endif
           <div class="flex-1 min-w-0">
             <h2 class="text-xl font-bold text-dark leading-tight break-words">{{ $profileData['nama_pengguna'] }}</h2>
             <p class="text-sm text-gray-400 mt-0.5">{{ $profileData['nama_kategori'] ?? '' }}</p>
@@ -37,7 +43,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            {{ $profileData['alamat_lengkap'] ?? '-' }}
+            {{ $profileData['nama_kota'] ?? '-' }}
           </div>
         </div>
 
@@ -125,7 +131,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
-              {{ $profileData['alamat_lengkap'] ?? '-' }}
+              {{ $profileData['nama_kota'] ?? '-' }}
             </div>
           </div>
         </a>

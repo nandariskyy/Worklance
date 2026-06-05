@@ -37,10 +37,10 @@ class Layanan extends Model
         return $this->hasManyThrough(Ulasan::class, Booking::class, 'id_layanan', 'id_booking', 'id_layanan', 'id_booking');
     }
 
-    public function gambarLayanan()
+    public function gambarPortofolio()
     {
         return $this->hasMany(
-            GambarLayanan::class,
+            GambarPortofolio::class,
             'id_layanan', 'id_layanan'
         );
     }

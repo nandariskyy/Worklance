@@ -16,7 +16,11 @@
           
           <div class="relative flex flex-col sm:flex-row items-center sm:items-center gap-8">
             <div class="relative flex-shrink-0">
-              <img src="https://ui-avatars.com/api/?name={{ urlencode($profileData['nama_pengguna']) }}&background=96B3BF&color=fff&size=200" alt="Avatar" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl object-cover">
+              @if(!empty($profileData['foto_profil']))
+                <img src="{{ asset('storage/' . $profileData['foto_profil']) }}" alt="Avatar" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl object-cover">
+              @else
+                <img src="https://ui-avatars.com/api/?name={{ urlencode($profileData['nama_pengguna']) }}&background=96B3BF&color=fff&size=200" alt="Avatar" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl object-cover">
+              @endif
             </div>
             <div class="text-center sm:text-left">
               <h1 class="text-3xl md:text-4xl font-extrabold text-dark tracking-tight mb-2">{{ $profileData['nama_jasa'] }}</h1>
@@ -28,24 +32,27 @@
                   <span>{{ $avg_rating }} <span class="font-normal text-yellow-600">({{ $total_ulasan }} Ulasan)</span></span>
                 </div>
                 <div class="flex items-center gap-1.5 text-gray-500">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                  {{ $profileData['alamat_lengkap'] ?? 'Jakarta Selatan' }}
+                  <svg class="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  {{ $profileData['nama_kota'] ?? 'Surabaya' }}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Portfolio Gallery Box (Placeholders) -->
+        <!-- Portfolio Gallery Box -->
+        @if ($portofolios->count() > 0)
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          @for ($i = 0; $i < 4; $i++)
-          <div class="aspect-[4/3] bg-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-             <div class="w-full h-full bg-gradient-to-tr from-gray-300 to-gray-200 flex items-center justify-center text-gray-400">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-             </div>
+          @foreach ($portofolios as $porto)
+          <div class="aspect-[4/3] bg-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+             <img src="{{ asset('storage/' . $porto->file_gambar) }}" alt="Portofolio" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
           </div>
-          @endfor
+          @endforeach
         </div>
+        @endif
 
         <!-- Details Tab Box -->
         <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">

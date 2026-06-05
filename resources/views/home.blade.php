@@ -181,16 +181,24 @@
               {{ number_format($fl['avg_rating'], 1) }}
             </div>
             <div class="flex justify-center mb-6 mt-4">
-              <div class="w-28 h-28 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-4xl ring-4 ring-primary/20 group-hover:ring-primary/50 transition-all p-1">
-                {{ substr($fl['nama_pengguna'], 0, 1) }}
-              </div>
+              @if(!empty($fl['gambar_cover']))
+                <img src="{{ $fl['gambar_cover'] }}" alt="Cover Layanan" class="w-full h-32 object-cover rounded-xl shadow-sm border border-gray-100">
+              @else
+                <div class="w-28 h-28 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-4xl ring-4 ring-primary/20 group-hover:ring-primary/50 transition-all p-1">
+                  @if(!empty($fl['foto_profil']))
+                    <img src="{{ asset('storage/' . $fl['foto_profil']) }}" alt="Avatar" class="w-full h-full rounded-full object-cover">
+                  @else
+                    {{ substr($fl['nama_pengguna'], 0, 1) }}
+                  @endif
+                </div>
+              @endif
             </div>
             <div class="text-center flex-grow">
               <h3 class="text-xl font-bold text-dark mb-1">{{ $fl['nama_pengguna'] }}</h3>
               <p class="text-accent font-medium text-sm mb-4">{{ $fl['nama_kategori'] }}</p>
               <div class="flex items-center justify-center text-gray-500 text-sm mb-6 bg-gray-50 py-1.5 px-3 rounded-full w-max mx-auto">
                 <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                {{ $fl['alamat_lengkap'] ?: '-' }}
+                {{ $fl['nama_kota'] ?: '-' }}
               </div>
             </div>
             <a href="{{ route('freelancer.profil', $fl['id_layanan']) }}" class="block text-center w-full bg-gray-50 border border-gray-200 text-dark group-hover:bg-dark group-hover:text-white group-hover:border-dark py-3 rounded-xl transition-all duration-300 font-semibold mt-auto">Lihat Profil</a>

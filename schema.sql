@@ -56,19 +56,19 @@ CREATE TABLE `desa` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `gambar_layanan`
+-- Table structure for table `gambar_portofolio`
 --
 
-DROP TABLE IF EXISTS `gambar_layanan`;
+DROP TABLE IF EXISTS `gambar_portofolio`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `gambar_layanan` (
+CREATE TABLE `gambar_portofolio` (
   `id_gambar` int(11) NOT NULL AUTO_INCREMENT,
   `id_layanan` int(11) DEFAULT NULL,
   `file_gambar` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_gambar`),
   KEY `id_layanan` (`id_layanan`),
-  CONSTRAINT `gambar_layanan_ibfk_1` FOREIGN KEY (`id_layanan`) REFERENCES `layanan` (`id_layanan`)
+  CONSTRAINT `gambar_portofolio_ibfk_1` FOREIGN KEY (`id_layanan`) REFERENCES `layanan` (`id_layanan`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

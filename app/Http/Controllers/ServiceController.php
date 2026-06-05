@@ -10,13 +10,15 @@ class ServiceController extends Controller
 {
     public function show($id)
     {
-        $layanan = Layanan::with(['pengguna', 'jasa.kategori', 'satuan'])->findOrFail($id);
+        $layanan = Layanan::with(['pengguna.kabupaten', 'jasa.kategori', 'satuan', 'gambarPortofolio'])->findOrFail($id);
 
         $profileData = [
             'id_pengguna' => $layanan->id_pengguna,
             'nama_pengguna' => $layanan->pengguna ? $layanan->pengguna->nama_pengguna : '-',
+            'foto_profil' => $layanan->pengguna ? $layanan->pengguna->foto_profil : null,
             'no_telp' => $layanan->pengguna ? $layanan->pengguna->no_telp : '-',
             'alamat_lengkap' => $layanan->pengguna ? $layanan->pengguna->alamat_lengkap : '-',
+            'nama_kota' => $layanan->pengguna && $layanan->pengguna->kabupaten ? $layanan->pengguna->kabupaten->nama_kabupaten : '-',
             'email' => $layanan->pengguna ? $layanan->pengguna->email : '-',
             'nama_kategori' => $layanan->jasa && $layanan->jasa->kategori ? $layanan->jasa->kategori->nama_kategori : '-',
             'id_kategori' => $layanan->jasa ? $layanan->jasa->id_kategori : null,
@@ -26,6 +28,8 @@ class ServiceController extends Controller
             'id_layanan' => $layanan->id_layanan,
             'nama_jasa' => !empty($layanan->namajasa) ? $layanan->namajasa : ($layanan->jasa ? $layanan->jasa->nama_jasa : '-')
         ];
+        
+        $portofolios = $layanan->gambarPortofolio;
 
         // Offered Jasa List (Jasa lain yang ditawarkan oleh user yang sama)
         $offeredJasaListQuery = Layanan::with('jasa')->where('id_pengguna', $layanan->id_pengguna)->get();
@@ -60,6 +64,6 @@ class ServiceController extends Controller
         $total_ulasan = count($ulasanList);
         $avg_rating = $total_ulasan > 0 ? round($totalRating / $total_ulasan, 1) : 0;
 
-        return view('layanan.show', compact('profileData', 'offeredJasaList', 'ulasanList', 'total_ulasan', 'avg_rating'));
+        return view('layanan.show', compact('profileData', 'offeredJasaList', 'ulasanList', 'total_ulasan', 'avg_rating', 'portofolios'));
     }
 }

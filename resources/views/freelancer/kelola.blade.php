@@ -8,7 +8,7 @@
     <nav class="flex items-center text-sm gap-2 font-medium mb-8">
       <a href="{{ url('/') }}" class="text-gray-500 hover:text-accent transition-colors">Beranda</a>
       <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-      <span class="text-dark font-bold">Kelola Layanan</span>
+      <span class="text-dark font-bold">Kelola Jasa</span>
     </nav>
 
     <!-- Page Header -->
@@ -26,8 +26,8 @@
       </div>
       
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        @if ($isFreelancer)
-        <a href="{{ route('layanan.show', 1) }}" target="_blank" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-dark rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none whitespace-nowrap hidden md:flex">
+        @if ($isFreelancer && $layanans->count() > 0)
+        <a href="{{ route('freelancer.profil', $layanans->first()->id_layanan) }}" target="_blank" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-dark rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none whitespace-nowrap hidden md:flex">
           Lihat Profil
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
         </a>
@@ -76,7 +76,15 @@
             @foreach($myCategories as $cat)
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row gap-6 items-start md:items-center hover:shadow-md transition-all">
                <div class="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-gray-200">
-                  @if(!empty($cat['gambar']) && count($cat['gambar']) > 0)
+                  @if (!empty($cat['gambar_cover']))
+
+                      <img
+                          src="{{ $cat['gambar_cover'] }}"
+                          alt="Cover Layanan"
+                          class="w-full h-full object-cover"
+                      >
+
+                  @elseif (!empty($cat['gambar']) && count($cat['gambar']) > 0)
 
                       <img
                           src="{{ asset('storage/'.$cat['gambar'][0]['file_gambar']) }}"
@@ -127,8 +135,9 @@
                            'id_satuan' => $cat['id_satuan'],
                            'namajasa' => $cat['namajasa'],
                            'deskripsi' => $cat['deskripsi'],
+                           'gambar_cover' => $cat['gambar_cover'],
                            'gambar' => $cat['gambar'] ?? [],
-                           'arr_jasa' => json_decode($cat['jasa_ids_json'], true)
+                           'id_jasa' => $cat['id_jasa']
                        ]) }})" class="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200/50" title="Edit Layanan">
                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                        </button>
@@ -254,6 +263,25 @@
                     <textarea name="deskripsi" id="inputDeskripsi" rows="6" placeholder="Beri gambaran detail apa saja yang Anda kerjakan di kategori ini, prosedur kerja, dll..." required class="w-full border border-gray-200 rounded-2xl px-5 py-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm font-medium text-dark resize-none transition-colors"></textarea>
                   </div>
 
+                  <!-- Cover Image Upload -->
+                  <div>
+                      <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
+                          <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                          Gambar Cover Layanan
+                          <span class="text-xs font-normal text-gray-500">(Opsional, ditampilkan di daftar layanan)</span>
+                      </label>
+                      <input type="file" name="gambar_cover" id="inputGambarCover" accept="image/*" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none text-sm font-medium text-dark transition-colors cursor-pointer">
+                      <div id="coverPreviewContainer" class="mt-3 hidden">
+                          <div class="relative inline-block">
+                              <img id="coverPreview" src="" alt="Cover Preview" class="w-64 h-40 object-cover rounded-xl border border-gray-200 shadow-sm">
+                              <button type="button" id="removeCoverBtn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow hover:bg-red-600 transition-colors tooltip" title="Hapus Cover">
+                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                              </button>
+                          </div>
+                      </div>
+                      <input type="hidden" name="remove_cover" id="inputRemoveCover" value="0">
+                  </div>
+
                   <!-- Portofolio Image Upload -->
                   <div class="portofolio-container mt-4">
                       <label class="flex items-center gap-2 text-sm font-bold text-dark mb-3">
@@ -309,8 +337,41 @@
     const checkboxes = document.querySelectorAll('.jasa-radio');
     const noJasaMsg = document.getElementById('noJasaMsg');
     
+    const coverInput = document.getElementById('inputGambarCover');
+    const coverPreviewContainer = document.getElementById('coverPreviewContainer');
+    const coverPreview = document.getElementById('coverPreview');
+    const removeCoverBtn = document.getElementById('removeCoverBtn');
+    const inputRemoveCover = document.getElementById('inputRemoveCover');
+    
     let deletedImages = [];
     
+    if (coverInput) {
+        coverInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    coverPreview.src = e.target.result;
+                    coverPreviewContainer.classList.remove('hidden');
+                    if(inputRemoveCover) inputRemoveCover.value = '0';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                coverPreviewContainer.classList.add('hidden');
+                coverPreview.src = '';
+            }
+        });
+    }
+
+    if (removeCoverBtn) {
+        removeCoverBtn.addEventListener('click', function() {
+            if (coverInput) coverInput.value = '';
+            if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
+            if (coverPreview) coverPreview.src = '';
+            if (inputRemoveCover) inputRemoveCover.value = '1';
+        });
+    }
+
     function resetForm() {
         modalTitle.innerText = "Tambah Layanan Baru";
         selKategori.value = '';
@@ -319,6 +380,13 @@
         inputNamaJasa.value = '';
         inputDeskripsi.value = '';
         selKategori.disabled = false;
+        
+        if (coverInput) coverInput.value = '';
+        if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
+        if (coverPreview) coverPreview.src = '';
+        if (inputRemoveCover) inputRemoveCover.value = '0';
+        if (coverPreview) coverPreview.src = '';
+
         updateCheckboxesVis();
         checkboxes.forEach(chk => { chk.checked = false; triggerCheckboxStyling(chk); });
 
@@ -408,11 +476,18 @@
         inputNamaJasa.value = data.namajasa;
         inputDeskripsi.value = data.deskripsi;
         
+        if (data.gambar_cover) {
+            if (coverPreview) {
+                coverPreview.src = data.gambar_cover;
+                coverPreviewContainer.classList.remove('hidden');
+            }
+        }
+        
         updateCheckboxesVis();
         
-        if(data.arr_jasa && Array.isArray(data.arr_jasa)) {
+        if(data.id_jasa) {
             checkboxes.forEach(chk => {
-                if (data.arr_jasa.includes(parseInt(chk.value) || chk.value.toString())) {
+                if (parseInt(chk.value) === parseInt(data.id_jasa)) {
                     chk.checked = true;
                     triggerCheckboxStyling(chk);
                 }

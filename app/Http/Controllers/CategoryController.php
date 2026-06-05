@@ -53,9 +53,13 @@ class CategoryController extends Controller
                 ->where('booking.id_layanan', $layanan->id_layanan)
                 ->avg('ulasan.rating');
 
-            // Ambil gambar pertama jika ada
-            $gambar = \App\Models\GambarLayanan::where('id_layanan', $layanan->id_layanan)->first();
-            $gambar_url = $gambar ? asset('storage/' . $gambar->file_gambar) : null;
+            // Ambil gambar cover atau portofolio pertama jika ada
+            if ($layanan->gambar_cover) {
+                $gambar_url = asset('storage/' . $layanan->gambar_cover);
+            } else {
+                $gambar = \App\Models\GambarPortofolio::where('id_layanan', $layanan->id_layanan)->first();
+                $gambar_url = $gambar ? asset('storage/' . $gambar->file_gambar) : null;
+            }
 
             $freelancers[] = [
                 'id_layanan' => $layanan->id_layanan,

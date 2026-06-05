@@ -36,12 +36,12 @@ INSERT INTO `desa` VALUES (1,1,'Keputih'),(2,1,'Gebang Putih'),(3,2,'Rungkut Ten
 UNLOCK TABLES;
 
 --
--- Dumping data for table `gambar_layanan`
+-- Dumping data for table `gambar_portofolio`
 --
 
-LOCK TABLES `gambar_layanan` WRITE;
-/*!40000 ALTER TABLE `gambar_layanan` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gambar_layanan` ENABLE KEYS */;
+LOCK TABLES `gambar_portofolio` WRITE;
+/*!40000 ALTER TABLE `gambar_portofolio` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gambar_portofolio` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
