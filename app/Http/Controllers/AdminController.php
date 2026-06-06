@@ -99,7 +99,8 @@ class AdminController extends Controller
     {
         $query = DB::table('pengguna')
             ->leftJoin('role', 'pengguna.id_role', '=', 'role.id_role')
-            ->select('pengguna.*', 'role.nama_role as role');
+            ->select('pengguna.*', 'role.nama_role as role')
+            ->where('pengguna.id_role', '!=', 1);
 
         if ($request->has('role')) {
             $query->where('role.nama_role', $request->role);
@@ -108,6 +109,7 @@ class AdminController extends Controller
         $roleStats = DB::table('pengguna')
             ->join('role', 'pengguna.id_role', '=', 'role.id_role')
             ->select('role.nama_role', DB::raw('count(*) as total'))
+            ->where('pengguna.id_role', '!=', 1)
             ->groupBy('role.nama_role')
             ->get();
 
@@ -115,6 +117,7 @@ class AdminController extends Controller
             ->join('kabupaten', 'pengguna.id_kabupaten', '=', 'kabupaten.id_kabupaten')
             ->select('kabupaten.nama_kabupaten as kabupaten', DB::raw('count(*) as total'))
             ->whereNotNull('pengguna.id_kabupaten')
+            ->where('pengguna.id_role', '!=', 1)
             ->groupBy('kabupaten.nama_kabupaten', 'pengguna.id_kabupaten')
             ->orderByDesc('total')
             ->take(5)

@@ -69,7 +69,6 @@
 <div class="mb-6">
     <div class="flex gap-3 flex-wrap">
         <a href="{{ route('admin.pengguna') }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? 'Semua') === 'Semua' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Semua</a>
-        <a href="{{ route('admin.pengguna', ['role' => 'Admin']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Admin' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Admin</a>
         <a href="{{ route('admin.pengguna', ['role' => 'Klien']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Klien' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">User</a>
         <a href="{{ route('admin.pengguna', ['role' => 'Freelancer']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Freelancer' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Freelancer</a>
     </div>
@@ -156,7 +155,6 @@
         <div>
         <label class="block text-sm font-bold text-dark mb-1.5">Role <span class="text-red-500">*</span></label>
         <select name="id_role" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-            <option value="1">Admin</option>
             <option value="2" selected>User</option>
             <option value="3">Freelancer</option>
         </select>
@@ -218,7 +216,6 @@
         <div>
         <label class="block text-sm font-bold text-dark mb-1.5">Role <span class="text-red-500">*</span></label>
         <select id="edit_id_role" name="id_role" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-            <option value="1">Admin</option>
             <option value="2">User</option>
             <option value="3">Freelancer</option>
         </select>
