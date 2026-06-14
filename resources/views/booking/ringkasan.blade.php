@@ -3,7 +3,7 @@
 @section('title', 'Ringkasan Pesanan | WorkLance')
 
 @section('content')
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div id="ringkasanContainer" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-has-success="{{ session('success') ? 'true' : 'false' }}">
     <!-- Breadcrumb -->
     <nav class="flex items-center text-sm gap-2 font-medium mb-8">
       <a href="{{ url('/') }}" class="text-gray-500 hover:text-accent transition-colors">Beranda</a>
@@ -125,51 +125,5 @@
     @endif
   </div>
 
-  <script>
-    const data = JSON.parse(localStorage.getItem('worklance_booking') || 'null');
-
-    function buildWaUrl(d) {
-      const telp = (d.freelancerTelp || '').replace(/^0/, '62');
-      const msg = `Halo ${d.freelancerNama}, saya ingin memesan layanan *${d.namaJasa || d.freelancerJasa}*.\n\n📅 Tanggal: ${d.tanggal}\n📍 Alamat: ${d.alamat}\n📝 Catatan: ${d.catatan || '-'}\n\nTerima kasih!`;
-      return `https://wa.me/${telp}?text=${encodeURIComponent(msg)}`;
-    }
-
-    @if (!session('success'))
-    if (data) {
-      document.getElementById('sumNama').textContent = data.freelancerNama;
-      document.getElementById('sumJasa').textContent = data.namaJasa || data.freelancerJasa;
-      document.getElementById('sumTarif').textContent = 'Rp ' + parseInt(data.freelancerTarif).toLocaleString('id-ID');
-      document.getElementById('sumSatuan').textContent = data.freelancerSatuan;
-      document.getElementById('sumTanggal').textContent = data.tanggal;
-      document.getElementById('sumAlamat').textContent = data.alamat;
-      document.getElementById('sumCatatan').textContent = data.catatan || '-';
-
-      // Fill hidden form
-      const fIdLayanan = document.getElementById('formIdLayanan');
-      if (fIdLayanan) fIdLayanan.value = data.idLayanan;
-      const fTanggal = document.getElementById('formTanggal');
-      if (fTanggal) fTanggal.value = data.tanggal;
-      const fAlamat = document.getElementById('formAlamat');
-      if (fAlamat) fAlamat.value = data.alamat;
-      const fCatatan = document.getElementById('formCatatan');
-      if (fCatatan) fCatatan.value = data.catatan;
-
-      // Direct WA button (not logged in)
-      const btnDirect = document.getElementById('btnWaDirect');
-      if (btnDirect) btnDirect.addEventListener('click', () => window.open(buildWaUrl(data), '_blank'));
-    } else {
-      document.getElementById('orderSummary').classList.add('hidden');
-      document.getElementById('noData').classList.remove('hidden');
-    }
-    @else
-    // After booking saved, WhatsApp button
-    const btnWa = document.getElementById('btnWhatsApp');
-    if (btnWa && data) {
-      btnWa.addEventListener('click', () => {
-        window.open(buildWaUrl(data), '_blank');
-        localStorage.removeItem('worklance_booking');
-      });
-    }
-    @endif
-  </script>
+  @vite('resources/js/pages/booking/ringkasan.js')
 @endsection

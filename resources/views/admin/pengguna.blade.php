@@ -18,7 +18,7 @@
         <h1 class="text-3xl font-bold text-dark mb-1">Kelola Pengguna</h1>
         <p class="text-gray-500">Total {{ count($penggunaList ?? []) }} pengguna terdaftar.</p>
     </div>
-    <button onclick="document.getElementById('modalForm').classList.remove('hidden')" class="px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-bold shadow-md hover:bg-orange-700 transition-colors flex items-center gap-2 cursor-pointer">
+    <button onclick="openModal('modalForm')" class="px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-bold shadow-md hover:bg-orange-700 transition-colors flex items-center gap-2 cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
         Tambah Pengguna
     </button>
@@ -53,14 +53,14 @@
         <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Persebaran Role</h4>
         <div class="h-full w-full relative flex justify-center">
             <div class="w-full max-w-sm h-full relative">
-                <canvas id="roleChart"></canvas>
+                <canvas id="roleChart" data-chart="{{ json_encode($chartData ?? []) }}"></canvas>
             </div>
         </div>
     </div>
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center h-64 hover:shadow-md transition-shadow">
         <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Top 5 Kabupaten</h4>
         <div class="h-full w-full relative">
-            <canvas id="kotaChart"></canvas>
+            <canvas id="kotaChart" data-chart="{{ json_encode($kotaChartData ?? []) }}"></canvas>
         </div>
     </div>
 </div>
@@ -211,7 +211,7 @@
     <div class="grid grid-cols-2 gap-4">
         <div>
         <label class="block text-sm font-bold text-dark mb-1.5">Username <span class="text-red-500">*</span></label>
-        <input type="text" id="edit_username" name="username" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+        <input type="text" id="edit_username" name="username" readonly class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 text-sm font-medium cursor-not-allowed">
         </div>
         <div>
         <label class="block text-sm font-bold text-dark mb-1.5">Role <span class="text-red-500">*</span></label>
@@ -224,28 +224,17 @@
 
     <div>
         <label class="block text-sm font-bold text-dark mb-1.5">Nama Lengkap <span class="text-red-500">*</span></label>
-        <input type="text" id="edit_nama_pengguna" name="nama_pengguna" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+        <input type="text" id="edit_nama_pengguna" name="nama_pengguna" readonly class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 text-sm font-medium cursor-not-allowed">
     </div>
 
     <div class="grid grid-cols-2 gap-4">
         <div>
         <label class="block text-sm font-bold text-dark mb-1.5">Email <span class="text-red-500">*</span></label>
-        <input type="email" id="edit_email" name="email" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
+        <input type="email" id="edit_email" name="email" readonly class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 text-sm font-medium cursor-not-allowed">
         </div>
         <div>
         <label class="block text-sm font-bold text-dark mb-1.5">No. Telepon</label>
-        <input type="text" id="edit_no_telp" name="no_telp" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-        </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Tanggal Lahir</label>
-        <input type="date" id="edit_tanggal_lahir" name="tanggal_lahir" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium">
-        </div>
-        <div>
-        <label class="block text-sm font-bold text-dark mb-1.5">Password Baru</label>
-        <input type="password" name="password" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white text-sm text-dark font-medium" placeholder="Kosongkan jika tidak diubah">
+        <input type="text" id="edit_no_telp" name="no_telp" readonly class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 text-sm font-medium cursor-not-allowed">
         </div>
     </div>
 
@@ -320,116 +309,6 @@
 </div>
 </div>
 
-<script>
-function openModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
-}
-
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
-}
-
-// Add event listener to buttons that open form/edit modal
-document.querySelector('button[onclick="document.getElementById(\'modalForm\').classList.remove(\'hidden\')"]').setAttribute('onclick', "openModal('modalForm')");
-
-function openEditModal(user) {
-    document.getElementById('edit_username').value = user.username;
-    document.getElementById('edit_id_role').value = user.id_role;
-    document.getElementById('edit_nama_pengguna').value = user.nama_pengguna;
-    document.getElementById('edit_email').value = user.email;
-    document.getElementById('edit_no_telp').value = user.no_telp || '';
-    document.getElementById('edit_tanggal_lahir').value = user.tanggal_lahir || '';
-    
-    document.getElementById('editForm').action = "/admin/pengguna/" + user.id_pengguna;
-    openModal('modalEdit');
-}
-
-function openDetailModal(user) {
-    document.getElementById('detail_title').innerText = 'Detail Pengguna #' + user.id_pengguna;
-    document.getElementById('detail_avatar').innerText = user.nama_pengguna.substring(0, 1).toUpperCase();
-    document.getElementById('detail_nama_pengguna').innerText = user.nama_pengguna;
-    document.getElementById('detail_username').innerText = '@' + (user.username || '');
-    document.getElementById('detail_role').innerText = user.role || '-';
-    document.getElementById('detail_email').innerText = user.email;
-    document.getElementById('detail_no_telp').innerText = user.no_telp || '-';
-    document.getElementById('detail_tanggal_lahir').innerText = user.tanggal_lahir || '-';
-    
-    document.getElementById('detail_provinsi').innerText = user.provinsi || '-';
-    document.getElementById('detail_kabupaten').innerText = user.kabupaten || '-';
-    document.getElementById('detail_kecamatan').innerText = user.kecamatan || '-';
-    document.getElementById('detail_desa').innerText = user.desa || '-';
-    document.getElementById('detail_alamat').innerText = user.alamat_lengkap || '-';
-    
-    openModal('modalDetail');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('roleChart');
-    if (!ctx) return;
-    const rawData = {!! json_encode($chartData ?? []) !!};
-    
-    const labels = rawData.map(item => item.nama_role);
-    const data = rawData.map(item => item.total);
-    
-    new Chart(ctx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: ['#2196F3', '#4CAF50', '#FF6B00'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, usePointStyle: true } }
-            },
-            cutout: '65%'
-        }
-    });
-
-    // Kota Chart
-    const ctxKota = document.getElementById('kotaChart');
-    if (ctxKota) {
-        const kotaData = {!! json_encode($kotaChartData ?? []) !!};
-        new Chart(ctxKota.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: kotaData.map(i => i.kabupaten),
-                datasets: [{
-                    label: 'Pengguna',
-                    data: kotaData.map(i => i.total),
-                    backgroundColor: '#9C27B0',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-    }
-});
-</script>
+@vite('resources/js/pages/admin/pengguna.js')
 
 @endsection

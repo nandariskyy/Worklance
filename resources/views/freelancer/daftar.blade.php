@@ -52,7 +52,7 @@
         </div>
         @endif
 
-        @if ($cekPengajuan && $cekPengajuan->status == 'MENUNGGU' && !session('successMsg'))
+        @if ($cekPengajuan && $cekPengajuan->status == 'MENUNGGU')
         <div class="p-10 text-center">
             <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -168,42 +168,5 @@
     </div>
   </main>
 
-  <script>
-    // JS Filtering Cascade
-    function cascadeFilter(parentSel, childSel, dataAttr) {
-      const parentEl = document.getElementById(parentSel);
-      if (!parentEl) return;
-      parentEl.addEventListener('change', function() {
-        const val = this.value;
-        const child = document.getElementById(childSel);
-        if (!child) return;
-        child.value = '';
-        child.querySelectorAll('option[' + dataAttr + ']').forEach(opt => {
-          opt.style.display = (!val || opt.getAttribute(dataAttr) === val) ? '' : 'none';
-        });
-        child.dispatchEvent(new Event('change'));
-      });
-    }
-
-    // Initialize display states correctly without overwriting values
-    function initCascadeFilters() {
-      const sels = [
-        { c: 'selKabupaten', pId: document.getElementById('selProvinsi')?.value, attr: 'data-prov' },
-        { c: 'selKecamatan', pId: document.getElementById('selKabupaten')?.value, attr: 'data-kab' },
-        { c: 'selDesa', pId: document.getElementById('selKecamatan')?.value, attr: 'data-kec' }
-      ];
-      sels.forEach(combo => {
-        const child = document.getElementById(combo.c);
-        if(!child) return;
-        child.querySelectorAll('option[' + combo.attr + ']').forEach(opt => {
-           opt.style.display = (!combo.pId || opt.getAttribute(combo.attr) === combo.pId) ? '' : 'none';
-        });
-      });
-    }
-
-    cascadeFilter('selProvinsi', 'selKabupaten', 'data-prov');
-    cascadeFilter('selKabupaten', 'selKecamatan', 'data-kab');
-    cascadeFilter('selKecamatan', 'selDesa', 'data-kec');
-    initCascadeFilters();
-  </script>
+  @vite('resources/js/pages/freelancer/daftar.js')
 @endsection

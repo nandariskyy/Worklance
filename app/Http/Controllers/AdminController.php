@@ -20,7 +20,7 @@ class AdminController extends Controller
     public function dashboard()
     {
         $totalUser = User::count();
-        $totalFreelancer = Layanan::distinct('id_pengguna')->count('id_pengguna');
+        $totalFreelancer = User::where('id_role', 3)->count();
         $totalBooking = Booking::count();
         $totalSelesai = Booking::where('status_booking', 'selesai')->count();
 
@@ -105,6 +105,15 @@ class AdminController extends Controller
         if ($request->has('role')) {
             $query->where('role.nama_role', $request->role);
         }
+        
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('pengguna.nama_pengguna', 'like', "%$search%")
+                  ->orWhere('pengguna.email', 'like', "%$search%")
+                  ->orWhere('pengguna.username', 'like', "%$search%");
+            });
+        }
             
         $roleStats = DB::table('pengguna')
             ->join('role', 'pengguna.id_role', '=', 'role.id_role')
@@ -158,6 +167,14 @@ class AdminController extends Controller
         if ($request->has('kategori')) {
             $query->where('kategori.id_kategori', $request->kategori);
         }
+        
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('pengguna.nama_pengguna', 'like', "%$search%")
+                  ->orWhere('jasa.nama_jasa', 'like', "%$search%");
+            });
+        }
 
         $freelancerList = json_decode(json_encode($query->get()), true);
         foreach ($freelancerList as &$f) {
@@ -167,9 +184,11 @@ class AdminController extends Controller
         $kategoriList = Kategori::all();
 
         $freelancerStats = DB::table('layanan')
+            ->join('pengguna', 'layanan.id_pengguna', '=', 'pengguna.id_pengguna')
             ->join('jasa', 'layanan.id_jasa', '=', 'jasa.id_jasa')
             ->join('kategori', 'jasa.id_kategori', '=', 'kategori.id_kategori')
             ->select('kategori.nama_kategori', DB::raw('count(distinct layanan.id_pengguna) as total'))
+            ->where('pengguna.id_role', 3)
             ->groupBy('kategori.nama_kategori')
             ->get();
 
@@ -192,6 +211,16 @@ class AdminController extends Controller
         
         if ($request->has('status')) {
             $query->where('status_booking', $request->status);
+        }
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('id_booking', 'like', "%$search%")
+                  ->orWhereHas('pengguna', function($q2) use ($search) {
+                      $q2->where('nama_pengguna', 'like', "%$search%");
+                  });
+            });
         }
 
         $bookingListQuery = $query->get();
@@ -239,6 +268,11 @@ class AdminController extends Controller
 
         if ($request->has('status')) {
             $query->where('pengajuan_freelancer.status', $request->status);
+        }
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('pengguna.nama_pengguna', 'like', "%$search%");
         }
 
         $pengajuanListQuery = $query->get();
@@ -358,14 +392,12 @@ class AdminController extends Controller
     {
         $request->validate([
             'id_kategori' => 'required|integer',
-            'nama_jasa' => 'required|string|max:100',
-            'deskripsi' => 'nullable|string'
+            'nama_jasa' => 'required|string|max:100'
         ]);
 
         Jasa::create([
             'id_kategori' => $request->id_kategori,
-            'nama_jasa' => $request->nama_jasa,
-            'deskripsi' => $request->deskripsi
+            'nama_jasa' => $request->nama_jasa
         ]);
 
         return redirect()->back()->with('success', 'Jasa baru berhasil ditambahkan.');
@@ -406,14 +438,12 @@ class AdminController extends Controller
         $jasa = Jasa::findOrFail($id);
         $request->validate([
             'id_kategori' => 'required|integer',
-            'nama_jasa' => 'required|string|max:100',
-            'deskripsi' => 'nullable|string'
+            'nama_jasa' => 'required|string|max:100'
         ]);
 
         $jasa->update([
             'id_kategori' => $request->id_kategori,
-            'nama_jasa' => $request->nama_jasa,
-            'deskripsi' => $request->deskripsi
+            'nama_jasa' => $request->nama_jasa
         ]);
 
         return redirect()->back()->with('success', 'Jasa berhasil diperbarui.');
@@ -422,13 +452,11 @@ class AdminController extends Controller
     public function storeSatuan(Request $request)
     {
         $request->validate([
-            'nama_satuan' => 'required|string|max:50',
-            'deskripsi' => 'nullable|string'
+            'nama_satuan' => 'required|string|max:50'
         ]);
 
         \App\Models\Satuan::create([
-            'nama_satuan' => $request->nama_satuan,
-            'deskripsi' => $request->deskripsi
+            'nama_satuan' => $request->nama_satuan
         ]);
 
         return redirect()->back()->with('success', 'Satuan baru berhasil ditambahkan.');
@@ -445,13 +473,11 @@ class AdminController extends Controller
     {
         $satuan = \App\Models\Satuan::findOrFail($id);
         $request->validate([
-            'nama_satuan' => 'required|string|max:50',
-            'deskripsi' => 'nullable|string'
+            'nama_satuan' => 'required|string|max:50'
         ]);
 
         $satuan->update([
-            'nama_satuan' => $request->nama_satuan,
-            'deskripsi' => $request->deskripsi
+            'nama_satuan' => $request->nama_satuan
         ]);
 
         return redirect()->back()->with('success', 'Satuan berhasil diperbarui.');
@@ -487,30 +513,14 @@ class AdminController extends Controller
         $pengguna = User::findOrFail($id);
 
         $request->validate([
-            'nama_pengguna' => 'required|string|max:255',
-            'username' => 'required|string|max:50|unique:pengguna,username,' . $id . ',id_pengguna',
-            'email' => 'required|email|unique:pengguna,email,' . $id . ',id_pengguna',
             'id_role' => 'required|integer|in:1,2,3',
-            'no_telp' => 'nullable|string|max:20',
-            'tanggal_lahir' => 'nullable|date'
         ]);
 
         $pengguna->update([
-            'nama_pengguna' => $request->nama_pengguna,
-            'username' => $request->username,
-            'email' => $request->email,
             'id_role' => $request->id_role,
-            'no_telp' => $request->no_telp,
-            'tanggal_lahir' => $request->tanggal_lahir
         ]);
 
-        if ($request->filled('password')) {
-            $pengguna->update([
-                'password' => \Illuminate\Support\Facades\Hash::make($request->password)
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Data pengguna berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Role pengguna berhasil diperbarui.');
     }
 
     public function destroyPengguna($id)
@@ -540,10 +550,41 @@ class AdminController extends Controller
         return redirect()->back()->with('error', 'Pengguna ini bukan freelancer.');
     }
 
-    public function destroyBooking($id)
+    // Method removed
+
+    public function export()
     {
-        $booking = Booking::findOrFail($id);
-        $booking->delete();
-        return redirect()->back()->with('success', 'Pesanan berhasil dihapus.');
+        $fileName = 'laporan_booking_' . date('Ymd_His') . '.csv';
+        $bookings = Booking::with(['pengguna', 'layanan.pengguna', 'layanan.jasa'])->orderBy('tanggal_booking', 'desc')->get();
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $columns = array('ID Booking', 'Nama Klien', 'Nama Freelancer', 'Jasa', 'Tanggal Booking', 'Status');
+
+        $callback = function() use($bookings, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($bookings as $b) {
+                fputcsv($file, array(
+                    'BK-' . str_pad($b->id_booking, 4, '0', STR_PAD_LEFT),
+                    $b->pengguna ? $b->pengguna->nama_pengguna : '-',
+                    $b->layanan && $b->layanan->pengguna ? $b->layanan->pengguna->nama_pengguna : '-',
+                    $b->layanan && $b->layanan->jasa ? $b->layanan->jasa->nama_jasa : '-',
+                    $b->tanggal_booking,
+                    $b->status_booking
+                ));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

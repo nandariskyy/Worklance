@@ -27,7 +27,7 @@ class CategoryController extends Controller
         // Ambil semua layanan dalam kategori ini (dan kecualikan admin)
         $query = Layanan::with(['pengguna.kabupaten', 'jasa', 'satuan'])
             ->whereHas('pengguna', function($q) {
-                $q->where('id_role', '!=', 1);
+                $q->where('id_role', 3);
             })
             ->whereHas('jasa', function($q) use ($id, $filterJasa) {
                 $q->where('jasa.id_kategori', $id);
@@ -57,8 +57,7 @@ class CategoryController extends Controller
             if ($layanan->gambar_cover) {
                 $gambar_url = asset('storage/' . $layanan->gambar_cover);
             } else {
-                $gambar = \App\Models\GambarPortofolio::where('id_layanan', $layanan->id_layanan)->first();
-                $gambar_url = $gambar ? asset('storage/' . $gambar->file_gambar) : null;
+                $gambar_url = null;
             }
 
             $freelancers[] = [

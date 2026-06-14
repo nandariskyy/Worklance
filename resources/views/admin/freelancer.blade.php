@@ -36,7 +36,7 @@
 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 hover:shadow-md transition-shadow">
     <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">Freelancer per Kategori</h4>
     <div class="w-full h-64 relative">
-        <canvas id="kategoriFreelancerChart"></canvas>
+        <canvas id="kategoriFreelancerChart" data-chart="{{ json_encode($chartData ?? []) }}"></canvas>
     </div>
 </div>
 
@@ -151,69 +151,6 @@
 </div>
 </div>
 
-<script>
-function openModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
-}
-
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
-}
-
-function openDetailModal(fl) {
-    document.getElementById('detail_avatar').innerText = (fl.nama_pengguna || 'F').substring(0, 1).toUpperCase();
-    document.getElementById('detail_nama_pengguna').innerText = fl.nama_pengguna;
-    document.getElementById('detail_email').innerText = fl.email;
-    document.getElementById('detail_id').innerText = fl.id_layanan;
-    document.getElementById('detail_kategori').innerText = fl.kategori || '-';
-    document.getElementById('detail_no_telp').innerText = fl.no_telp || '-';
-    document.getElementById('detail_status').innerText = fl.status || 'Aktif';
-    
-    openModal('modalDetail');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('kategoriFreelancerChart');
-    if (!ctx) return;
-    const rawData = {!! json_encode($chartData ?? []) !!};
-    
-    const labels = rawData.map(item => item.nama_kategori);
-    const data = rawData.map(item => item.total);
-    
-    new Chart(ctx.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Jumlah Freelancer',
-                data: data,
-                backgroundColor: '#FF6B00',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                x: { grid: { display: false } }
-            }
-        }
-    });
-});
-</script>
+@vite('resources/js/pages/admin/freelancer.js')
 
 @endsection

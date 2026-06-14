@@ -12,9 +12,17 @@
 </div>
 @endsection
 <!-- Page Title & Action -->
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-dark mb-1">Kelola Booking</h1>
-    <p class="text-gray-500">Pantau dan kelola semua booking yang masuk.</p>
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-dark mb-1">Kelola Booking</h1>
+        <p class="text-gray-500">Pantau dan kelola semua booking yang masuk.</p>
+    </div>
+    <div class="flex gap-3">
+        <a href="{{ route('admin.export') }}" class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Export Data
+        </a>
+    </div>
 </div>
 
 @if (session('success'))
@@ -54,7 +62,7 @@
 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 hover:shadow-md transition-shadow flex flex-col items-center">
     <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Statistik Status Booking</h4>
     <div class="w-full max-w-md h-64 relative">
-        <canvas id="bookingChart"></canvas>
+        <canvas id="bookingChart" data-stats="{{ json_encode($stats ?? []) }}"></canvas>
     </div>
 </div>
 
@@ -109,13 +117,6 @@
                 <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Detail" onclick="openDetailModal({{ json_encode($bk) }})">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 </button>
-                <form method="POST" action="{{ route('admin.booking.destroy', $bk['raw_id']) }}" class="inline-block" onsubmit="return confirmAction(event, 'Apakah Anda yakin ingin menghapus booking ini secara permanen?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
-                </form>
                 </div>
             </td>
             </tr>
@@ -183,80 +184,6 @@
 </div>
 </div>
 
-<script>
-function openModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
-}
-
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
-}
-
-function openDetailModal(bk) {
-    document.getElementById('detail_id').innerText = bk.id_booking;
-    document.getElementById('detail_client').innerText = bk.nama_client;
-    document.getElementById('detail_client_contact').innerText = (bk.client_email || '-') + ' / ' + (bk.client_phone || '-');
-    document.getElementById('detail_freelancer').innerText = bk.nama_freelancer;
-    document.getElementById('detail_jasa').innerText = bk.nama_jasa;
-    
-    const dateObj = new Date(bk.tanggal_booking);
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
-    document.getElementById('detail_tanggal').innerText = `${day}-${month}-${year}`;
-    
-    document.getElementById('detail_alamat').innerText = bk.alamat_booking || '-';
-    document.getElementById('detail_catatan').innerText = bk.catatan_booking || '-';
-    
-    const statusSpan = document.getElementById('detail_status');
-    statusSpan.innerText = bk.status_booking;
-    
-    // reset classes
-    statusSpan.className = "px-3 py-1 rounded-full text-[11px] font-bold border inline-block ";
-    if (bk.status_booking === 'MENUNGGU') statusSpan.className += "bg-gray-100 text-gray-600 border-gray-200";
-    if (bk.status_booking === 'DIPROSES') statusSpan.className += "bg-yellow-50 text-yellow-600 border-yellow-200";
-    if (bk.status_booking === 'SELESAI') statusSpan.className += "bg-green-50 text-green-600 border-green-200";
-    if (bk.status_booking === 'DIBATALKAN') statusSpan.className += "bg-red-50 text-red-600 border-red-200";
-    
-    openModal('modalDetail');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('bookingChart');
-    if (!ctx) return;
-    const stats = {!! json_encode($stats ?? []) !!};
-    
-    new Chart(ctx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Menunggu', 'Diproses', 'Selesai', 'Dibatalkan'],
-            datasets: [{
-                data: [stats.Menunggu || 0, stats.Diproses || 0, stats.Selesai || 0, stats.Dibatalkan || 0],
-                backgroundColor: ['#9CA3AF', '#FBBF24', '#34D399', '#F87171'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, usePointStyle: true } }
-            }
-        }
-    });
-});
-</script>
+@vite('resources/js/pages/admin/booking.js')
 
 @endsection

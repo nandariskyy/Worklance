@@ -11,6 +11,11 @@ class ServiceController extends Controller
     public function show($id)
     {
         $layanan = Layanan::with(['pengguna.kabupaten', 'jasa.kategori', 'satuan', 'gambarPortofolio'])->findOrFail($id);
+        
+        // Prevent accessing services of users who are not active freelancers
+        if ($layanan->pengguna && $layanan->pengguna->id_role != 3) {
+            abort(404, 'Layanan tidak ditemukan atau freelancer tidak aktif.');
+        }
 
         $profileData = [
             'id_pengguna' => $layanan->id_pengguna,

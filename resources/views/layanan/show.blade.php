@@ -112,7 +112,13 @@
             </div>
           </div>
 
-          <form id="bookingForm" class="space-y-5">
+          <form id="bookingForm" class="space-y-5" 
+                data-id="{{ $profileData['id_layanan'] }}"
+                data-nama-jasa="{{ $profileData['nama_jasa'] }}"
+                data-freelancer-nama="{{ $profileData['nama_pengguna'] }}"
+                data-freelancer-telp="{{ $profileData['no_telp'] }}"
+                data-freelancer-tarif="{{ $profileData['tarif'] }}"
+                data-freelancer-satuan="{{ $profileData['nama_satuan'] }}">
 
             <div>
               <label class="block text-sm font-bold text-dark mb-2">Deskripsi Pekerjaan <span class="text-red-500">*</span></label>
@@ -150,57 +156,5 @@
     </div>
   </main>
 
-  <script>
-    function switchTab(tabId) {
-      if (tabId === 'deskripsi') {
-        document.getElementById('tabDeskripsi').classList.remove('hidden');
-        document.getElementById('tabDeskripsi').classList.add('block');
-        document.getElementById('tabUlasan').classList.add('hidden');
-        document.getElementById('tabUlasan').classList.remove('block');
-        
-        document.getElementById('btnDeskripsi').classList.add('text-accent', 'border-accent');
-        document.getElementById('btnDeskripsi').classList.remove('text-gray-400', 'border-transparent');
-        document.getElementById('btnUlasan').classList.remove('text-accent', 'border-accent');
-        document.getElementById('btnUlasan').classList.add('text-gray-400', 'border-transparent');
-      } else {
-        document.getElementById('tabUlasan').classList.remove('hidden');
-        document.getElementById('tabUlasan').classList.add('block');
-        document.getElementById('tabDeskripsi').classList.add('hidden');
-        document.getElementById('tabDeskripsi').classList.remove('block');
-        
-        document.getElementById('btnUlasan').classList.add('text-accent', 'border-accent');
-        document.getElementById('btnUlasan').classList.remove('text-gray-400', 'border-transparent');
-        document.getElementById('btnDeskripsi').classList.remove('text-accent', 'border-accent');
-        document.getElementById('btnDeskripsi').classList.add('text-gray-400', 'border-transparent');
-      }
-    }
-
-    const bookingForm = document.getElementById('bookingForm');
-    if (bookingForm) {
-      bookingForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const idLayanan = @json($profileData['id_layanan']);
-        const namaJasa = @json($profileData['nama_jasa']);
-        const catatan = document.getElementById('inpCatatan').value;
-        const alamat = document.getElementById('inpAlamat').value;
-        const tanggal = document.getElementById('inpTanggal').value;
-        
-        const bookingData = {
-          idLayanan: idLayanan,
-          namaJasa: namaJasa,
-          freelancerNama: @json($profileData['nama_pengguna']),
-          freelancerTelp: @json($profileData['no_telp']),
-          freelancerTarif: @json($profileData['tarif']),
-          freelancerSatuan: @json($profileData['nama_satuan']),
-          catatan: catatan,
-          alamat: alamat,
-          tanggal: tanggal
-        };
-        
-        localStorage.setItem('worklance_booking', JSON.stringify(bookingData));
-        window.location.href = '{{ route("booking.ringkasan") }}';
-      });
-    }
-  </script>
+  @vite('resources/js/pages/layanan/show.js')
 @endsection

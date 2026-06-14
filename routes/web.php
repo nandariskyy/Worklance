@@ -11,8 +11,10 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\CategoryController;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/kategori/{id}', [CategoryController::class, 'show'])->name('kategori.show');
+Route::middleware('client')->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/kategori/{id}', [CategoryController::class, 'show'])->name('kategori.show');
+});
 
 // Auth
 Route::get('/login', [AuthController::class, 'login'])->name('login')->middleware('guest');
@@ -22,10 +24,12 @@ Route::post('/register', [AuthController::class, 'store']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Service / Profile
-Route::get('/layanan/{id}', [ServiceController::class, 'show'])->name('layanan.show');
+Route::middleware('client')->group(function () {
+    Route::get('/layanan/{id}', [ServiceController::class, 'show'])->name('layanan.show');
+});
 
 // Freelancer
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'client'])->group(function () {
     Route::get('/mulai-freelancer', [FreelancerController::class, 'mulai'])->name('freelancer.mulai');
     Route::get('/daftar-freelancer', [FreelancerController::class, 'daftar'])->name('freelancer.daftar');
     Route::post('/daftar-freelancer', [FreelancerController::class, 'storePengajuan']);
@@ -35,7 +39,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Booking
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'client'])->group(function () {
     Route::get('/ringkasan-pesanan', [BookingController::class, 'ringkasan'])->name('booking.ringkasan');
     Route::post('/ringkasan-pesanan', [BookingController::class, 'store']);
     Route::get('/pesanan', [BookingController::class, 'pesanan'])->name('booking.pesanan');
@@ -64,8 +68,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [App\Http\Controllers\AuthController::class, 'loginAdmin'])->name('login')->middleware('guest');
     
     // Protected admin routes
-    Route::middleware(['auth', 'admin'])->group(function () {
+    Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/export', [AdminController::class, 'export'])->name('export');
         
         // Pengguna
         Route::get('/pengguna', [AdminController::class, 'pengguna'])->name('pengguna');
@@ -79,7 +84,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Booking
         Route::get('/booking', [AdminController::class, 'booking'])->name('booking');
-        Route::delete('/booking/{id}', [AdminController::class, 'destroyBooking'])->name('booking.destroy');
         
         // Pengajuan
         Route::get('/pengajuan', [AdminController::class, 'pengajuan'])->name('pengajuan');
@@ -100,4 +104,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // Riwayat
-Route::get('/history', [HistoryController::class, 'index']);
+Route::middleware('client')->group(function () {
+    Route::get('/history', [HistoryController::class, 'index']);
+});

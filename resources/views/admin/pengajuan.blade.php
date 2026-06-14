@@ -23,7 +23,7 @@
 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 hover:shadow-md transition-shadow flex flex-col items-center">
     <h4 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider w-full text-left">Statistik Status Pengajuan</h4>
     <div class="w-full max-w-md h-64 relative">
-        <canvas id="pengajuanChart"></canvas>
+        <canvas id="pengajuanChart" data-chart="{{ json_encode($chartData ?? []) }}"></canvas>
     </div>
 </div>
 
@@ -173,96 +173,6 @@
 </div>
 </div>
 
-<script>
-function openModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
-}
-
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    const content = document.getElementById(id + 'Content');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
-}
-
-function openDetailModal(pj) {
-    document.getElementById('detail_nama').innerText = pj.nama_pengguna;
-    document.getElementById('detail_nik').innerText = pj.nik || '-';
-    document.getElementById('detail_telp').innerText = pj.no_telp || '-';
-    document.getElementById('detail_email').innerText = pj.email || '-';
-    
-    // Formatting date loosely for display
-    const dateObj = new Date(pj.tanggal_pengajuan);
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
-    document.getElementById('detail_waktu').innerText = `${day}-${month}-${year}`;
-    
-    document.getElementById('detail_deskripsi').innerText = pj.deskripsi_keahlian || pj.surat_lamaran || '';
-    
-    const statusSpan = document.getElementById('detail_status');
-    statusSpan.innerText = pj.status;
-    
-    statusSpan.className = "px-2 py-0.5 rounded text-[11px] font-bold tracking-wide border inline-block uppercase mt-0.5 ";
-    if (pj.status === 'MENUNGGU') statusSpan.className += "bg-yellow-50 text-yellow-600 border-yellow-200";
-    if (pj.status === 'DITERIMA') statusSpan.className += "bg-green-50 text-green-600 border-green-200";
-    if (pj.status === 'DITOLAK') statusSpan.className += "bg-red-50 text-red-600 border-red-200";
-    
-    if (pj.status === 'MENUNGGU') {
-        document.getElementById('action_container').classList.remove('hidden');
-        document.getElementById('form_id_pengajuan').value = pj.id_pengajuan;
-    } else {
-        document.getElementById('action_container').classList.add('hidden');
-    }
-    
-    openModal('modalDetail');
-}
-
-function submitVerifikasi(action) {
-    document.getElementById('form_action').value = action;
-    const actionText = action === 'approve' ? 'menerima' : 'menolak';
-    if(confirm('Yakin ' + actionText + ' pengajuan ini?')) {
-        document.getElementById('verifikasiForm').submit();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('pengajuanChart');
-    if (!ctx) return;
-    const rawData = {!! json_encode($chartData ?? []) !!};
-    
-    const labels = rawData.map(item => item.status);
-    const data = rawData.map(item => item.total);
-    
-    new Chart(ctx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: ['#9CA3AF', '#34D399', '#F87171'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, usePointStyle: true } }
-            },
-            cutout: '65%'
-        }
-    });
-});
-</script>
+@vite('resources/js/pages/admin/pengajuan.js')
 
 @endsection

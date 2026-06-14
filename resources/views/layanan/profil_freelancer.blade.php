@@ -25,7 +25,6 @@
           @endif
           <div class="flex-1 min-w-0">
             <h2 class="text-xl font-bold text-dark leading-tight break-words">{{ $profileData['nama_pengguna'] }}</h2>
-            <p class="text-sm text-gray-400 mt-0.5">{{ $profileData['nama_kategori'] ?? '' }}</p>
           </div>
         </div>
 

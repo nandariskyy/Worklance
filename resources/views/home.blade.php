@@ -26,9 +26,13 @@
 
                 <!-- Gambar -->
                 <div class="relative bg-gray-100 h-32 flex items-center justify-center overflow-hidden">
-                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
+                    @if (!empty($fl['gambar_cover']))
+                      <img src="{{ $fl['gambar_cover'] }}" alt="{{ $fl['nama_jasa'] }}" class="w-full h-full object-cover">
+                    @else
+                      <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                    @endif
                     <span class="absolute top-2 right-2 bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-yellow-100">
                         <svg class="w-3 h-3 fill-current text-yellow-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         {{ number_format($fl['avg_rating'], 1) }}
@@ -195,7 +199,7 @@
             </div>
             <div class="text-center flex-grow">
               <h3 class="text-xl font-bold text-dark mb-1">{{ $fl['nama_pengguna'] }}</h3>
-              <p class="text-accent font-medium text-sm mb-4">{{ $fl['nama_kategori'] }}</p>
+
               <div class="flex items-center justify-center text-gray-500 text-sm mb-6 bg-gray-50 py-1.5 px-3 rounded-full w-max mx-auto">
                 <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 {{ $fl['nama_kota'] ?: '-' }}

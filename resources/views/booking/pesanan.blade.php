@@ -98,28 +98,5 @@
     </div>
   </div>
 
-  <script>
-    function switchTab(tab) {
-      const tabs = ['menunggu', 'diproses', 'selesai', 'dibatalkan'];
-      
-      tabs.forEach(t => {
-        const btn = document.getElementById(t + 'Btn');
-        const list = document.getElementById(t + 'List');
-        
-        if (t === tab) {
-          list.classList.remove('hidden');
-          list.classList.add('block');
-          
-          btn.classList.add('text-accent', 'border-accent', 'font-bold');
-          btn.classList.remove('text-gray-400', 'border-transparent', 'font-semibold');
-        } else {
-          list.classList.add('hidden');
-          list.classList.remove('block');
-          
-          btn.classList.remove('text-accent', 'border-accent', 'font-bold');
-          btn.classList.add('text-gray-400', 'border-transparent', 'font-semibold');
-        }
-      });
-    }
-  </script>
+  @vite('resources/js/pages/booking/pesanan.js')
 @endsection
