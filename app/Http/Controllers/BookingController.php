@@ -116,6 +116,8 @@ class BookingController extends Controller
             'alamat_booking' => $booking->alamat_booking,
             'catatan' => $booking->catatan,
             'status_booking' => $booking->status_booking,
+            'konfirmasi_klien' => $booking->konfirmasi_klien,
+            'konfirmasi_freelancer' => $booking->konfirmasi_freelancer,
             'tarif' => $booking->layanan ? $booking->layanan->tarif : 0,
             'nama_satuan' => $booking->layanan && $booking->layanan->satuan ? $booking->layanan->satuan->nama_satuan : '-'
         ];
@@ -146,21 +148,36 @@ class BookingController extends Controller
         $booking = Booking::with('layanan')->findOrFail($request->id_booking);
         $user = auth()->user();
 
-        // Jika mengubah status menjadi DITOLAK atau DIPROSES atau SELESAI, itu tugas freelancer
-        if (in_array($request->status, ['DIPROSES', 'DITOLAK', 'SELESAI'])) {
+        // Jika mengubah status menjadi DITOLAK atau DIPROSES, itu tugas freelancer
+        if (in_array($request->status, ['DIPROSES', 'DITOLAK'])) {
             if ($booking->layanan->id_pengguna != $user->id_pengguna) {
                 abort(403);
             }
         }
         
-        // Jika mengubah status menjadi DIBATALKAN, itu tugas klien
+        // DIBATALKAN bisa dilakukan oleh klien (sebelum diproses) atau freelancer (saat menolak)
         if ($request->status == 'DIBATALKAN') {
-            if ($booking->id_pengguna != $user->id_pengguna) {
+            if ($booking->id_pengguna != $user->id_pengguna && $booking->layanan->id_pengguna != $user->id_pengguna) {
                 abort(403);
             }
         }
 
-        $booking->update(['status_booking' => $request->status]);
+        if ($request->status == 'SELESAI') {
+            if ($booking->id_pengguna == $user->id_pengguna) {
+                $booking->konfirmasi_klien = true;
+            } elseif ($booking->layanan->id_pengguna == $user->id_pengguna) {
+                $booking->konfirmasi_freelancer = true;
+            } else {
+                abort(403);
+            }
+
+            if ($booking->konfirmasi_klien && $booking->konfirmasi_freelancer) {
+                $booking->status_booking = 'SELESAI';
+            }
+            $booking->save();
+        } else {
+            $booking->update(['status_booking' => $request->status]);
+        }
 
         return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui.');
     }

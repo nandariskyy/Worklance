@@ -69,7 +69,7 @@
 <div class="mb-6">
     <div class="flex gap-3 flex-wrap">
         <a href="{{ route('admin.pengguna') }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? 'Semua') === 'Semua' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Semua</a>
-        <a href="{{ route('admin.pengguna', ['role' => 'Klien']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Klien' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">User</a>
+        <a href="{{ route('admin.pengguna', ['role' => 'User']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'User' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">User</a>
         <a href="{{ route('admin.pengguna', ['role' => 'Freelancer']) }}" class="px-5 py-2 rounded-full text-sm font-bold transition-all {{ ($activeRole ?? '') === 'Freelancer' ? 'bg-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:shadow-sm' }}">Freelancer</a>
     </div>
 </div>

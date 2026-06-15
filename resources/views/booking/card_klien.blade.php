@@ -45,6 +45,19 @@
       </form>
     @endif
 
+    @if ($p['status_booking'] == 'DIPROSES')
+      @if (!$p['konfirmasi_klien'])
+        <form method="POST" action="{{ route('booking.status') }}" onsubmit="return confirmAction(event, 'Pastikan pesanan sudah Anda terima. Konfirmasi Selesai?');">
+          @csrf
+          <input type="hidden" name="id_booking" value="{{ $p['id_booking'] }}">
+          <input type="hidden" name="status" value="SELESAI">
+          <button type="submit" class="w-full px-4 py-2 bg-green-500 text-white hover:bg-green-600 rounded-lg text-sm font-bold transition-colors shadow-sm">Pesanan Selesai</button>
+        </form>
+      @else
+        <div class="px-4 py-2 bg-gray-50 border border-gray-200 text-gray-500 rounded-lg text-xs font-bold text-center">Menunggu Konfirmasi Freelancer</div>
+      @endif
+    @endif
+
     @if ($p['status_booking'] == 'SELESAI' && !isset($p['rating']))
       <button onclick="document.getElementById('modalUlasan{{ $p['id_booking'] }}').classList.remove('hidden')" class="w-full px-4 py-2 bg-accent text-white hover:bg-orange-600 rounded-lg text-sm font-bold transition-colors shadow-sm shadow-accent/30">Beri Ulasan</button>
 
