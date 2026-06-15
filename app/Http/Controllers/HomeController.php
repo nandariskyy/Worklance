@@ -16,7 +16,6 @@ class HomeController extends Controller
         $kategoriList = Kategori::all();
 
         // 2. Ambil data jasa dan dikelompokkan per kategori
-        // Di views/home.blade.php diekspektasikan berupa array dengan key id_kategori
         $semuaJasa = Jasa::all();
         $jasaPerKategori = [];
         foreach ($semuaJasa as $jasa) {
@@ -24,8 +23,6 @@ class HomeController extends Controller
         }
 
         // 3. Ambil freelancer unggulan (Layanan yang ada ratingnya)
-        // Karena rating ada di ulasan -> booking -> layanan
-        // Untuk saat ini kita ambil semua layanan dengan informasi avg_rating jika ada
         $layanans = Layanan::with(['pengguna.kabupaten', 'jasa.kategori', 'satuan'])
             ->whereHas('pengguna', function($q) {
                 $q->where('id_role', 3);

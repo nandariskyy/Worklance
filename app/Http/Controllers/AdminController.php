@@ -541,16 +541,12 @@ class AdminController extends Controller
         $pengguna = User::findOrFail($id);
         if ($pengguna->id_role == 3) {
             $pengguna->update(['id_role' => 2]);
-            // Optional: delete Layanan records related to this user? Let's just keep or delete.
-            // Better keep them but they just can't be accessed as freelancer.
             
             DB::table('pengajuan_freelancer')->where('id_pengguna', $id)->delete();
             return redirect()->back()->with('success', 'Akses freelancer berhasil dicabut. Role kembali menjadi Klien.');
         }
         return redirect()->back()->with('error', 'Pengguna ini bukan freelancer.');
     }
-
-    // Method removed
 
     public function export()
     {
