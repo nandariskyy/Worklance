@@ -52,10 +52,10 @@ Route::middleware(['auth', 'client'])->group(function () {
         Route::get('/informasi', [App\Http\Controllers\ProfileController::class, 'informasi'])->name('informasi');
         Route::post('/informasi', [App\Http\Controllers\ProfileController::class, 'updateInformasi']);
         Route::post('/informasi/hapus-foto', [App\Http\Controllers\ProfileController::class, 'hapusFotoProfil'])->name('informasi.hapus-foto');
-        
+
         Route::get('/kontak', [App\Http\Controllers\ProfileController::class, 'kontak'])->name('kontak');
         Route::post('/kontak', [App\Http\Controllers\ProfileController::class, 'updateKontak']);
-        
+
         Route::get('/keamanan', [App\Http\Controllers\ProfileController::class, 'keamanan'])->name('keamanan');
         Route::post('/keamanan/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('keamanan.password');
         Route::post('/keamanan/hapus', [App\Http\Controllers\ProfileController::class, 'hapusAkun'])->name('keamanan.hapus');
@@ -64,31 +64,29 @@ Route::middleware(['auth', 'client'])->group(function () {
 
 // Admin
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Admin login using AuthController instead of AdminController to avoid duplicate logic
     Route::get('/login', [App\Http\Controllers\AuthController::class, 'loginAdmin'])->name('login')->middleware('guest');
-    
-    // Protected admin routes
+
     Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/export', [AdminController::class, 'export'])->name('export');
-        
+
         // Pengguna
         Route::get('/pengguna', [AdminController::class, 'pengguna'])->name('pengguna');
         Route::post('/pengguna', [AdminController::class, 'storePengguna'])->name('pengguna.store');
         Route::put('/pengguna/{id}', [AdminController::class, 'updatePengguna'])->name('pengguna.update');
         Route::delete('/pengguna/{id}', [AdminController::class, 'destroyPengguna'])->name('pengguna.destroy');
-        
+
         // Freelancer
         Route::get('/freelancer', [AdminController::class, 'freelancer'])->name('freelancer');
         Route::post('/freelancer/{id}/revoke', [AdminController::class, 'revokeFreelancer'])->name('freelancer.revoke');
-        
+
         // Booking
         Route::get('/booking', [AdminController::class, 'booking'])->name('booking');
-        
+
         // Pengajuan
         Route::get('/pengajuan', [AdminController::class, 'pengajuan'])->name('pengajuan');
         Route::post('/pengajuan/verifikasi', [AdminController::class, 'verifikasiPengajuan'])->name('pengajuan.verifikasi');
-        
+
         // Kelola Kategori & Jasa
         Route::get('/kelola', [AdminController::class, 'kelola'])->name('kelola');
         Route::post('/kelola/kategori', [AdminController::class, 'storeKategori'])->name('kelola.kategori');

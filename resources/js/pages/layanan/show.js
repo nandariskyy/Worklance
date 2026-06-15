@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             localStorage.setItem('worklance_booking', JSON.stringify(bookingData));
-            window.location.href = '/booking/ringkasan';
+            window.location.href = '/ringkasan-pesanan';
         });
     }
 });
