@@ -15,7 +15,7 @@
 <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-dark mb-1">Kelola Layanan</h1>
-        <p class="text-gray-500">Total {{ count($freelancerList ?? []) }} freelancer terdaftar.</p>
+        <p class="text-gray-500">Total {{ count($freelancerList ?? []) }} layanan freelancer terdaftar.</p>
     </div>
 </div>
 
